@@ -109,20 +109,29 @@ JWT_SECRET=<your_jwt_secret>
 OPENAI_API_KEY=<your_openai_key_if_applicable>
 ```
 
-### 4️⃣ Run the Project
+Create a `.env` file in the **frontend/** folder and add:
+
+```
+VITE_API_URL=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+```
+
+### 4️⃣ Run the Server
 
 **Backend**
 ```bash
-npm start
+cd backend
+npm run dev
 ```
 
 **Frontend**
 ```bash
+cd frontend
 npm run dev
 ```
 
 🌐 **Frontend:** http://localhost:5173  
-⚙️ **Backend API:** http://localhost:5000/api  
+⚙️ **Backend API:** http://localhost:5000  
 
 ---
 
@@ -137,42 +146,33 @@ npm run dev
 | `GET`  | `/api/roadmap/:career` | Get roadmap for a career |
 | `POST` | `/api/ai/chat` | AI Chatbot endpoint |
 
----
-
-## 📘 Usage Flow
-
-1️⃣ **Sign Up / Login**  
-2️⃣ **Fill Career Interests & Skills**  
-3️⃣ **Get Personalized Recommendations**  
-4️⃣ **Explore Roadmaps & Resources**  
-5️⃣ **Practice Interviews & Track Progress**  
 
 ---
 
 ## 🔮 Future Enhancements
 
-- 🌍 Global career & salary insights  
-- 🎓 Integration with Coursera / Udemy APIs  
-- 📈 AI-powered Resume Analysis  
-- 🧭 Career community discussion board  
-- 📱 Mobile app (React Native)  
+-🎤 Voice Interviews: Speech-to-Text integration for real-time oral answers.
+-📹 Video Analysis: Body language and confidence analysis.
+-🤝 Community Hub: A space for users to share roadmaps and tips.
+-📱 Mobile App: React Native version for learning on the go.
 
 ---
 
 ## 🤝 Contributing
 
-We ❤️ contributions!  
-To contribute:
+This is a college project actively under development! We welcome feedback and contributions.
 
-1. Fork this repository  
-2. Create a new branch (`feature/your-feature-name`)  
-3. Commit and push your changes  
-4. Open a Pull Request 🎉  
+1. Fork the repository
+2. Create your feature branch (git checkout -b feature/AmazingFeature)
+3. Commit your changes (git commit -m 'Add some AmazingFeature')
+4. Push to the branch (git push origin feature/AmazingFeature)
+5. Open a Pull Request 
 
 ---
 
 ## 👨‍💻 Developed By
 
+Team PATHWISE
 -> Shubh Kumar
 -> Mohd. Saqib
 -> Rishabh Srivastava
@@ -184,4 +184,5 @@ To contribute:
 ## 🪪 License
 
 Licensed under the **MIT License**  
+Free for educational and personal use.
 📄 You are free to use, modify, and distribute this project.
