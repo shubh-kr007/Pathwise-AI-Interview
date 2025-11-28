@@ -5,8 +5,8 @@ PathWise is an intelligent career development platform designed to help students
 
 Unlike generic platforms, PathWise offers real-time, specific feedback using GPT models to analyze your resume and interview performance instantly.
 
-🌐 **Live Frontend:** [https://pathwise-frontend.onrender.com](https://pathwise-frontend.onrender.com)  
-⚙️ **Live Backend:** [https://pathwise-backend.onrender.com](https://pathwise-backend.onrender.com)
+🌐 **Live Frontend:** [https://pathwise-ai-interview-frontend.onrender.com](https://pathwise-ai-interview-frontend.onrender.com)  
+⚙️ **Live Backend:** [https://pathwise-ai-interview-backend.onrender.com](https://pathwise-ai-interview-backend.onrender.com)
 
 ---
 
@@ -76,85 +76,112 @@ PathWise/
 │   └── server.js           # Entry point
 │
 └── README.md
-⚙️ Installation & Setup
-1️⃣ Clone the Repository
-Bash
 
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the Repository
+```bash
 git clone https://github.com/<your-username>/PathWise.git
 cd PathWise
-2️⃣ Backend Setup
-Bash
+```
 
-cd backend
+### 2️⃣ Install Dependencies
+
+**Backend:**
+```bash
+cd server
 npm install
-Create a .env file in the backend/ folder:
+```
 
-env
+**Frontend:**
+```bash
+cd ../client
+npm install
+```
 
+### 3️⃣ Environment Setup
+Create a `.env` file in the **backend/** folder and add:
+
+```
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_super_secret_key
-OPENAI_API_KEY=sk-proj-your-openai-key
-GOOGLE_CLIENT_ID=your_google_client_id
-CLIENT_URL=http://localhost:5173
-Run the server:
+MONGO_URI=<your_mongo_database_uri>
+JWT_SECRET=<your_jwt_secret>
+OPENAI_API_KEY=<your_openai_key_if_applicable>
+```
 
-Bash
+### 4️⃣ Run the Project
 
+**Backend**
+```bash
+npm start
+```
+
+**Frontend**
+```bash
 npm run dev
-3️⃣ Frontend Setup
-Open a new terminal:
+```
 
-Bash
+🌐 **Frontend:** http://localhost:5173  
+⚙️ **Backend API:** http://localhost:5000/api  
 
-cd frontend
-npm install
-Create a .env file in the frontend/ folder:
+---
 
-env
+## 🧠 API Endpoints (Sample)
 
-VITE_API_URL=http://localhost:5000
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-Run the client:
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/login` | Login user |
+| `GET`  | `/api/user/profile` | Fetch user profile |
+| `POST` | `/api/progress/save-attempt` | Save test/interview attempt |
+| `GET`  | `/api/roadmap/:career` | Get roadmap for a career |
+| `POST` | `/api/ai/chat` | AI Chatbot endpoint |
 
-Bash
+---
 
-npm run dev
-🚀 App is now running at: http://localhost:5173
+## 📘 Usage Flow
 
-🧠 Key API Endpoints
-Method	Endpoint	Description
-POST	/api/auth/signup	Create a new user account
-POST	/api/resume/analyze	Upload & analyze resume (Multipart/Form-Data)
-POST	/api/ai/generate-questions	Generate fresh interview questions via AI
-POST	/api/ai/interview-feedback	Get AI feedback on interview answers
-POST	/api/progress/save-attempt	Save interview score & history
-GET	/api/user/profile	Get user stats and details
-🔮 Future Enhancements
-🎤 Voice Interviews: Speech-to-Text integration for real-time oral answers.
-📹 Video Analysis: Body language and confidence analysis.
-🤝 Community Hub: A space for users to share roadmaps and tips.
-📱 Mobile App: React Native version for learning on the go.
-🤝 Contributing
-This is a college project actively under development! We welcome feedback and contributions.
+1️⃣ **Sign Up / Login**  
+2️⃣ **Fill Career Interests & Skills**  
+3️⃣ **Get Personalized Recommendations**  
+4️⃣ **Explore Roadmaps & Resources**  
+5️⃣ **Practice Interviews & Track Progress**  
 
-Fork the repository
-Create your feature branch (git checkout -b feature/AmazingFeature)
-Commit your changes (git commit -m 'Add some AmazingFeature')
-Push to the branch (git push origin feature/AmazingFeature)
-Open a Pull Request
-👨‍💻 Developed By
-Team PathWise
+---
 
-Rishabh Srivastava - Frontend Lead
-Mohd. Saqib - Auth & Security Lead
-Shubh Kumar - Backend & API Lead
-🪪 License
-Licensed under the MIT License.
-Free for educational and personal use.
+## 🔮 Future Enhancements
+
+- 🌍 Global career & salary insights  
+- 🎓 Integration with Coursera / Udemy APIs  
+- 📈 AI-powered Resume Analysis  
+- 🧭 Career community discussion board  
+- 📱 Mobile app (React Native)  
+
+---
+
+## 🤝 Contributing
+
+We ❤️ contributions!  
+To contribute:
+
+1. Fork this repository  
+2. Create a new branch (`feature/your-feature-name`)  
+3. Commit and push your changes  
+4. Open a Pull Request 🎉  
+
+---
+
+## 👨‍💻 Developed By
+
+-> Shubh Kumar
+-> Mohd. Saqib
+-> Rishabh Srivastava
 
 
 
+---
 
+## 🪪 License
 
-
+Licensed under the **MIT License**  
+📄 You are free to use, modify, and distribute this project.
