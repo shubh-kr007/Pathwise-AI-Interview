@@ -1,169 +1,160 @@
 # 🧭 PathWise
+**Your AI-Powered Career Navigator & Interview Coach**
 
-> **Your Smart Career Navigator — Powered by AI, Data, and Personalized Insights**
+PathWise is an intelligent career development platform designed to help students and professionals crack their dream jobs. It combines **AI Resume Analysis**, **Mock Interviews**, and **Personalized Roadmaps** into a single, cohesive experience.
 
-PathWise helps students and professionals **discover the right career path**, analyze **skill gaps**, and follow **AI-generated roadmaps** for success.  
-Whether you're planning your first internship, switching careers, or improving your skills — PathWise guides your journey with intelligence and clarity.
+Unlike generic platforms, PathWise offers real-time, specific feedback using GPT models to analyze your resume and interview performance instantly.
 
-🌐 **Live Demo:** [https://pathwise-icin.vercel.app/](https://pathwise-icin.vercel.app/)  
-⚙️ **API Backend:** [https://pathwise-j2t6.onrender.com](https://pathwise-j2t6.onrender.com)
+🌐 **Live Frontend:** [https://pathwise-frontend.onrender.com](https://pathwise-frontend.onrender.com)  
+⚙️ **Live Backend:** [https://pathwise-backend.onrender.com](https://pathwise-backend.onrender.com)
 
 ---
 
-## 🌟 Features
+## 🌟 Key Features
 
-✅ **AI Career Recommendation Engine** – Discover your ideal roles and industries.  
-📊 **Skill Gap Analysis** – Compare your current skills with target career paths.  
-🧩 **Interactive Roadmaps** – Visualize step-by-step learning journeys.  
-💬 **Mock Interviews + Reports** – Get evaluated with smart feedback.  
-📚 **Learning Resource Hub** – Curated tutorials, courses & playlists.  
-🧠 **AI Chat Assistant** – Answers to all your career & learning questions.  
-📈 **Progress Dashboard** – Track your journey and achievements.  
+### 📄 AI Resume Analyzer
+*   Upload your resume (PDF/DOCX).
+*   Get an instant **ATS Score** (0-100).
+*   Receive detailed feedback on **Strengths, Weaknesses, and Missing Keywords**.
+*   Automatically detects your job role (e.g., Frontend Dev, Data Scientist) to tailor your experience.
+
+### 🤖 AI Mock Interviews
+*   **Dynamic Questions:** Questions generated in real-time based on the selected topic and mode.
+*   **Multiple Modes:**
+    *   ✅ **MCQ:** Rapid-fire concept checking.
+    *   💻 **Coding:** Write and submit code snippets.
+    *   📝 **Quiz:** Open-ended conceptual questions.
+*   **10+ Domains:** Technical, Behavioral, System Design, Data Science, and more.
+*   **Instant Feedback:** Detailed AI analysis of your answers, including "What went well" and "Areas for improvement."
+
+### 🗺️ Personalized Roadmaps
+*   Generates a custom learning path based on your **Resume Analysis**.
+*   Step-by-step guide to mastering your specific job role.
+
+### 📊 Smart Dashboard
+*   **Progress Tracking:** Visual charts using Recharts to show score improvement over time.
+*   **Session Isolation:** Secure, user-specific data management.
+*   **Interview History:** Review past attempts and scores.
+
+### 💬 AI Assistant
+*   Built-in Chatbot to answer career queries, provide quick tips, and guide you through the app.
 
 ---
 
 ## 🏗️ Tech Stack
 
 | Layer | Technologies |
-|-------|--------------|
-| 🎨 **Frontend** | ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white) |
-| ⚙️ **Backend** | ![NodeJS](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white) |
-| 🗄️ **Database** | ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white) ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white) |
-| 🔐 **Auth & Security** | ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens) ![bcrypt](https://img.shields.io/badge/Bcrypt-4A90E2?style=for-the-badge) |
-| 🤖 **AI / NLP** | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white) ![Hugging Face](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) |
-| ☁️ **Deployment** | ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white) ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black) ![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white) |
+| :--- | :--- |
+| **Frontend** | React (Vite), TailwindCSS, Framer Motion, Lucide React, Recharts |
+| **Backend** | Node.js, Express.js, Multer (File Upload) |
+| **Database** | MongoDB (Atlas) |
+| **AI Engine** | OpenAI API (GPT-3.5 Turbo / GPT-4) |
+| **Auth** | JSON Web Tokens (JWT), Google OAuth 2.0 |
+| **Deployment** | Render (Static Site + Web Service) |
 
 ---
 
 ## 🧩 Folder Structure
 
-```
-PathWise/
-├── client/               # Frontend (React)
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   ├── assets/
-│   │   └── utils/
-│   └── package.json
-│
-├── server/               # Backend (Node + Express)
-│   ├── models/
-│   ├── routes/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── config/
-│   └── server.js
-│
-├── .env.example
-├── README.md
-└── package.json
-```
-
----
-
-## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the Repository
 ```bash
+PathWise/
+├── frontend/               # React (Vite) Application
+│   ├── src/
+│   │   ├── components/     # Reusable UI components (Navbar, Footer, etc.)
+│   │   ├── context/        # AuthContext & Global State
+│   │   ├── pages/          # Main Pages (Dashboard, Interview, Resume, etc.)
+│   │   ├── utils/          # API Service, Session Manager
+│   │   └── main.jsx
+│   ├── index.html
+│   └── vite.config.js
+│
+├── backend/                # Node.js Express API
+│   ├── config/             # DB Connection
+│   ├── middleware/         # Auth & File Handling
+│   ├── models/             # Mongoose Schemas (User, InterviewAttempt)
+│   ├── routes/             # API Routes (Auth, AI, Resume, Progress)
+│   └── server.js           # Entry point
+│
+└── README.md
+⚙️ Installation & Setup
+1️⃣ Clone the Repository
+Bash
+
 git clone https://github.com/<your-username>/PathWise.git
 cd PathWise
-```
+2️⃣ Backend Setup
+Bash
 
-### 2️⃣ Install Dependencies
-
-**Backend:**
-```bash
-cd server
+cd backend
 npm install
-```
+Create a .env file in the backend/ folder:
 
-**Frontend:**
-```bash
-cd ../client
-npm install
-```
+env
 
-### 3️⃣ Environment Setup
-Create a `.env` file in the **server/** folder and add:
-
-```
 PORT=5000
-MONGO_URI=<your_mongo_database_uri>
-JWT_SECRET=<your_jwt_secret>
-OPENAI_API_KEY=<your_openai_key_if_applicable>
-```
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_key
+OPENAI_API_KEY=sk-proj-your-openai-key
+GOOGLE_CLIENT_ID=your_google_client_id
+CLIENT_URL=http://localhost:5173
+Run the server:
 
-### 4️⃣ Run the Project
+Bash
 
-**Backend**
-```bash
-npm start
-```
-
-**Frontend**
-```bash
 npm run dev
-```
+3️⃣ Frontend Setup
+Open a new terminal:
 
-🌐 **Frontend:** http://localhost:5173  
-⚙️ **Backend API:** http://localhost:5000/api  
+Bash
 
----
+cd frontend
+npm install
+Create a .env file in the frontend/ folder:
 
-## 🧠 API Endpoints (Sample)
+env
 
-| Method | Endpoint | Description |
-|--------|-----------|-------------|
-| `POST` | `/api/auth/register` | Register a new user |
-| `POST` | `/api/auth/login` | Login user |
-| `GET`  | `/api/user/profile` | Fetch user profile |
-| `POST` | `/api/progress/save-attempt` | Save test/interview attempt |
-| `GET`  | `/api/roadmap/:career` | Get roadmap for a career |
-| `POST` | `/api/ai/chat` | AI Chatbot endpoint |
+VITE_API_URL=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+Run the client:
 
----
+Bash
 
-## 📘 Usage Flow
+npm run dev
+🚀 App is now running at: http://localhost:5173
 
-1️⃣ **Sign Up / Login**  
-2️⃣ **Fill Career Interests & Skills**  
-3️⃣ **Get Personalized Recommendations**  
-4️⃣ **Explore Roadmaps & Resources**  
-5️⃣ **Practice Interviews & Track Progress**  
+🧠 Key API Endpoints
+Method	Endpoint	Description
+POST	/api/auth/signup	Create a new user account
+POST	/api/resume/analyze	Upload & analyze resume (Multipart/Form-Data)
+POST	/api/ai/generate-questions	Generate fresh interview questions via AI
+POST	/api/ai/interview-feedback	Get AI feedback on interview answers
+POST	/api/progress/save-attempt	Save interview score & history
+GET	/api/user/profile	Get user stats and details
+🔮 Future Enhancements
+🎤 Voice Interviews: Speech-to-Text integration for real-time oral answers.
+📹 Video Analysis: Body language and confidence analysis.
+🤝 Community Hub: A space for users to share roadmaps and tips.
+📱 Mobile App: React Native version for learning on the go.
+🤝 Contributing
+This is a college project actively under development! We welcome feedback and contributions.
 
----
+Fork the repository
+Create your feature branch (git checkout -b feature/AmazingFeature)
+Commit your changes (git commit -m 'Add some AmazingFeature')
+Push to the branch (git push origin feature/AmazingFeature)
+Open a Pull Request
+👨‍💻 Developed By
+Team PathWise
 
-## 🔮 Future Enhancements
-
-- 🌍 Global career & salary insights  
-- 🎓 Integration with Coursera / Udemy APIs  
-- 📈 AI-powered Resume Analysis  
-- 🧭 Career community discussion board  
-- 📱 Mobile app (React Native)  
-
----
-
-## 🤝 Contributing
-
-We ❤️ contributions!  
-To contribute:
-
-1. Fork this repository  
-2. Create a new branch (`feature/your-feature-name`)  
-3. Commit and push your changes  
-4. Open a Pull Request 🎉  
-
----
-
-## 👨‍💻 Developed By
+Rishabh Srivastava - Frontend Lead
+Mohd. Saqib - Auth & Security Lead
+Shubh Kumar - Backend & API Lead
+🪪 License
+Licensed under the MIT License.
+Free for educational and personal use.
 
 
 
----
 
-## 🪪 License
 
-Licensed under the **MIT License**  
-📄 You are free to use, modify, and distribute this project.
+
