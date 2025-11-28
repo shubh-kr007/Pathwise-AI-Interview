@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const express = require("express");
-const cors = require("cors");
 const connectDB = require("./config/db");
 
 // Import routes
@@ -15,21 +14,27 @@ const progressRoutes = require("./routes/progressRoutes");
 
 const app = express();
 
-///////////////////////////////////////////////////////////
-// ✅ SIMPLE, DEV-FRIENDLY CORS: ALLOW ALL ORIGINS
-///////////////////////////////////////////////////////////
-app.use(cors({
-  origin: true,               // Reflect request origin
-  credentials: false,         // We are using Bearer token, not cookies
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+// ✅ VERY SIMPLE, ALWAYS-ON CORS (WORKS ON RENDER & LOCAL)
+app.use((req, res, next) => {
+  // Allow any origin (for a college project this is fine)
+  res.header("Access-Control-Allow-Origin", "*");
+  // Allow these headers from frontend
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  // Allow these methods
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  
+  // Handle preflight quickly
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Body parsers
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-// DB
+// Connect DB
 connectDB();
 
 // Health check
