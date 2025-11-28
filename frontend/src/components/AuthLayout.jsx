@@ -117,13 +117,13 @@ export default function AuthLayout({
               </motion.button>
             </form>
 
-            <div className="my-6 flex items-center">
+            {/* <div className="my-6 flex items-center">
               <div className="flex-grow border-t border-gray-700"></div>
               <span className="mx-4 text-gray-400 text-sm">OR</span>
               <div className="flex-grow border-t border-gray-700"></div>
-            </div>
+            </div> */}
 
-            <div className="flex justify-center">
+            {/* <div className="flex justify-center">
               <motion.div
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }}
                 whileTap={{ scale: 0.95 }}
@@ -142,7 +142,7 @@ export default function AuthLayout({
                   className="absolute inset-0 opacity-0 pointer-events-auto"
                 ></div>
               </motion.div>
-            </div>
+            </div> */}
 
             <motion.button
               whileHover={{ scale: 1.05 }}
