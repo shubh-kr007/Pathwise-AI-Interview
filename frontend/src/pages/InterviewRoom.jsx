@@ -1,3 +1,4 @@
+// src/pages/InterviewRoom.jsx
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -19,8 +20,10 @@ import { useToast } from "../components/ToastProvider";
 import InterviewRoomSkeleton from "../components/InterviewRoomSkeleton";
 import AIFeedbackReport from "../components/AIFeedbackReport";
 import { useAuth } from "../context/AuthContext";
-import sessionManager from "../utils/sessionManager"; // ✅ Import session manager
+import sessionManager from "../utils/sessionManager";
+import { API_BASE } from "../config/api";
 
+// Modes available
 const MODES = [
   { id: "mcq", label: "MCQ Based", icon: ListChecks },
   { id: "coding", label: "Coding Based", icon: Code2 },
@@ -32,7 +35,7 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-// ✅ Comprehensive Question Bank (15+ questions per type/mode)
+// Question bank for fallback/offline use
 const QUESTION_BANK = {
   technical: {
     mcq: [
@@ -454,12 +457,12 @@ export default function InterviewRoom() {
       });
       const plan = buildPracticePlan(report);
 
+      // AI feedback: call backend
       setLoadingFeedback(true);
       try {
         const token = localStorage.getItem("token");
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
         
-        const feedbackResponse = await fetch(`${API_URL}/api/ai/interview-feedback`, {
+        const feedbackResponse = await fetch(`${API_BASE}/api/ai/interview-feedback`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -487,6 +490,7 @@ export default function InterviewRoom() {
         setLoadingFeedback(false);
       }
 
+      // Save attempt to backend
       const payload = {
         type: interviewType,
         mode,
@@ -496,7 +500,7 @@ export default function InterviewRoom() {
         plan,
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/progress/save-attempt`, {
+      const response = await fetch(`${API_BASE}/api/progress/save-attempt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -523,7 +527,7 @@ export default function InterviewRoom() {
     } catch (error) {
       console.error("Error saving attempt:", error);
       
-      // ✅ Fallback using session manager
+      // Fallback using session manager
       try {
         const ts = Date.now();
         let percent = null;
@@ -538,7 +542,6 @@ export default function InterviewRoom() {
           percent = Math.round((correct / questions.length) * 100);
         }
         
-        // ✅ Save using session manager
         sessionManager.saveInterviewAttempt({
           type: interviewType,
           mode,
@@ -689,7 +692,7 @@ export default function InterviewRoom() {
     });
   };
 
-    const score = useMemo(() => {
+  const score = useMemo(() => {
     if (!submitted || mode !== "mcq") return null;
     let correct = 0;
     questions.forEach((q) => {
@@ -713,12 +716,13 @@ export default function InterviewRoom() {
     setAiFeedback(null);
   };
 
-  // Timer
+  // Timer resets on question/mode change
   useEffect(() => {
     if (!mode || submitted || showWarning || questions.length === 0) return;
     setTimeLeft(QUESTION_TIME);
   }, [currentIndex, mode, submitted, showWarning, questions.length]);
 
+  // Timer countdown
   useEffect(() => {
     if (!mode || showWarning || questions.length === 0 || submitted) return;
     const tick = setInterval(() => {
@@ -942,7 +946,7 @@ export default function InterviewRoom() {
                       });
                     })()}
 
-                    {/* ✅ Submit Button for MCQ */}
+                    {/* Submit Button for MCQ */}
                     {!questionSubmitted[current.id] && (
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -987,7 +991,6 @@ export default function InterviewRoom() {
                       </div>
                     )}
 
-                    {/* ✅ Submit Button for Coding */}
                     {!questionSubmitted[current.id] && (
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -1028,7 +1031,6 @@ export default function InterviewRoom() {
                       </div>
                     )}
 
-                    {/* ✅ Submit Button for Quiz */}
                     {!questionSubmitted[current.id] && (
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -1069,7 +1071,7 @@ export default function InterviewRoom() {
                       }}
                       className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${
                         canNext
-                          ? "border-gray-700 hover:bg-white/5 cursor-pointer"
+                          ? "border-gray-700 hover:bg.white/5 cursor-pointer"
                           : "border-gray-800 opacity-50 cursor-not-allowed"
                       }`}
                     >
@@ -1197,7 +1199,7 @@ export default function InterviewRoom() {
                         <Bar value={scores.clarity} />
                       </div>
                       <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
+                        <div className="flex items.center justify-between text-sm mb-1">
                           <span>Structure</span>
                           <span>{scores.structure}%</span>
                         </div>
@@ -1206,7 +1208,7 @@ export default function InterviewRoom() {
                     </div>
                     <div className="grid md:grid-cols-2 gap-4 mt-6">
                       <div className="bg-white/5 border border-gray-800 rounded-xl p-4">
-                        <div className="font-semibold mb-2">Strengths</div>
+                        <div className="font-semibold.mb-2">Strengths</div>
                         {strengths.length === 0 ? (
                           <div className="text-gray-400 text-sm">
                             No strong areas yet. Keep practicing!
@@ -1237,7 +1239,7 @@ export default function InterviewRoom() {
                     {resources.length > 0 && (
                       <div className="mt-6">
                         <div className="font-semibold mb-2">Suggested Resources</div>
-                        <ul className="list-disc ml-5 text-sm space-y-1">
+                        <ul className="list-disc ml-5.text-sm space-y-1">
                           {resources.map((r, i) => (
                             <li key={i}>
                               <a
@@ -1299,7 +1301,7 @@ export default function InterviewRoom() {
                 );
               })()}
 
-            {/* ✅ AI-Powered Feedback Section */}
+            {/* AI-Powered Feedback Section */}
             {submitted && (
               <div className="mt-6">
                 <AIFeedbackReport feedback={aiFeedback} loading={loadingFeedback} />

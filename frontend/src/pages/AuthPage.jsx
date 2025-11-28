@@ -3,10 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/AuthLayout";
-
-const API_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : "http://localhost:5000/api";
+import { API_BASE } from "../config/api";  // ✅ Use this
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -32,7 +29,8 @@ export default function AuthPage() {
         ? { email: form.email, password: form.password }
         : form;
 
-      const res = await fetch(API_URL + endpoint, {
+      // ✅ Use API_BASE and always include /api here
+      const res = await fetch(`${API_BASE}/api${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -53,7 +51,8 @@ export default function AuthPage() {
           : "✅ Signup successful! Welcome! Redirecting..."
       );
       navigate("/");
-    } catch {
+    } catch (err) {
+      console.error("Auth error:", err);
       setMessage("❌ Server error. Please try again later.");
     } finally {
       setIsLoading(false);
@@ -63,7 +62,7 @@ export default function AuthPage() {
   const handleGoogleSuccess = async (credentialResponse) => {
     const idToken = credentialResponse.credential;
     try {
-      const res = await fetch(`${API_URL}/google-login`, {
+      const res = await fetch(`${API_BASE}/api/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken }),
@@ -78,7 +77,8 @@ export default function AuthPage() {
       } else {
         setMessage(data.message || "❌ Google login failed");
       }
-    } catch {
+    } catch (err) {
+      console.error("Google login error:", err);
       setMessage("❌ Google login failed");
     }
   };

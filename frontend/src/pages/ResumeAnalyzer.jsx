@@ -1,10 +1,20 @@
+// src/pages/ResumeAnalyzer.jsx
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, Loader, Sparkles, CheckCircle, XCircle, TrendingUp, Award, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Upload,
+  FileText,
+  Loader,
+  Sparkles,
+  CheckCircle,
+  XCircle,
+  TrendingUp,
+  Award,
+  AlertCircle,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { API_BASE } from "../config/api";  // ✅ Use shared API base
 
 export default function ResumeAnalyzer() {
   const { user } = useAuth();
@@ -19,11 +29,13 @@ export default function ResumeAnalyzer() {
     // Check if user already has resume analysis
     const checkExistingAnalysis = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/api/resume/status`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE}/api/resume/status`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.analyzed && data.data) {
@@ -62,34 +74,33 @@ export default function ResumeAnalyzer() {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/resume/analyze`, {
-        method: 'POST',
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE}/api/resume/analyze`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: formData,
+        body: formData, // Do NOT set Content-Type manually for FormData
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Analysis failed');
+        throw new Error(errorData.message || "Analysis failed");
       }
 
       const data = await response.json();
       setAnalysis(data.analysis);
       setHasExistingAnalysis(true);
-      
-      // Show success message
+
+      // Ask to go to roadmap
       setTimeout(() => {
         const roadmapPrompt = window.confirm(
           "✅ Resume analyzed! Would you like to view your personalized roadmap based on this analysis?"
         );
         if (roadmapPrompt) {
-          navigate('/personalized-roadmap');
+          navigate("/personalized-roadmap");
         }
       }, 1000);
-      
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to analyze resume. Please try again.");
@@ -126,11 +137,12 @@ export default function ResumeAnalyzer() {
             </h1>
           </div>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Get instant AI-powered feedback on your resume with actionable insights to land more interviews
+            Get instant AI-powered feedback on your resume with actionable
+            insights to land more interviews.
           </p>
         </motion.div>
 
-        {/* Upload Section */}
+        {/* Upload Section (if no analysis yet) */}
         {!analysis && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +172,9 @@ export default function ResumeAnalyzer() {
                 <p className="mt-3 text-sm text-gray-400 flex items-center gap-2 bg-gray-800/30 p-3 rounded-lg">
                   <Upload size={16} />
                   <span className="font-medium">{file.name}</span>
-                  <span className="text-gray-500">({(file.size / 1024).toFixed(1)} KB)</span>
+                  <span className="text-gray-500">
+                    ({(file.size / 1024).toFixed(1)} KB)
+                  </span>
                 </p>
               )}
             </div>
@@ -215,7 +229,11 @@ export default function ResumeAnalyzer() {
                   )}
                 </div>
                 <div className="text-center ml-6">
-                  <div className={`text-6xl font-extrabold ${getScoreColor(analysis.score)}`}>
+                  <div
+                    className={`text-6xl font-extrabold ${getScoreColor(
+                      analysis.score
+                    )}`}
+                  >
                     {analysis.score}
                   </div>
                   <div className="text-gray-400 text-sm mt-1">out of 100</div>
@@ -228,7 +246,9 @@ export default function ResumeAnalyzer() {
                   initial={{ width: 0 }}
                   animate={{ width: `${analysis.score}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className={`h-full bg-gradient-to-r ${getScoreBg(analysis.score)}`}
+                  className={`h-full bg-gradient-to-r ${getScoreBg(
+                    analysis.score
+                  )}`}
                 />
               </div>
             </div>
@@ -241,10 +261,16 @@ export default function ResumeAnalyzer() {
                     <Award className="text-blue-400" size={24} />
                     <div>
                       <div className="font-semibold">ATS Compatibility</div>
-                      <div className="text-sm text-gray-400">Applicant Tracking System Score</div>
+                      <div className="text-sm text-gray-400">
+                        Applicant Tracking System Score
+                      </div>
                     </div>
                   </div>
-                  <div className={`text-3xl font-bold ${getScoreColor(analysis.atsCompatibility)}`}>
+                  <div
+                    className={`text-3xl font-bold ${getScoreColor(
+                      analysis.atsCompatibility
+                    )}`}
+                  >
                     {analysis.atsCompatibility}%
                   </div>
                 </div>
@@ -260,7 +286,10 @@ export default function ResumeAnalyzer() {
                 </div>
                 <ul className="space-y-2">
                   {analysis.strengths?.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-green-400 mt-1">•</span>
                       {item}
                     </li>
@@ -275,7 +304,10 @@ export default function ResumeAnalyzer() {
                 </div>
                 <ul className="space-y-2">
                   {analysis.weaknesses?.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-300 flex items.start gap-2"
+                    >
                       <span className="text-red-400 mt-1">•</span>
                       {item}
                     </li>
@@ -292,12 +324,19 @@ export default function ResumeAnalyzer() {
                   Section-by-Section Analysis
                 </h4>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {Object.entries(analysis.sections).map(([section, feedback]) => (
-                    <div key={section} className="bg-gray-800/50 rounded-lg p-4">
-                      <div className="font-medium capitalize mb-1">{section}</div>
-                      <div className="text-sm text-gray-400">{feedback}</div>
-                    </div>
-                  ))}
+                  {Object.entries(analysis.sections).map(
+                    ([section, feedback]) => (
+                      <div
+                        key={section}
+                        className="bg-gray-800/50 rounded-lg p-4"
+                      >
+                        <div className="font-medium capitalize mb-1">
+                          {section}
+                        </div>
+                        <div className="text-sm text-gray-400">{feedback}</div>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
@@ -306,11 +345,16 @@ export default function ResumeAnalyzer() {
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <AlertCircle className="text-blue-400" size={20} />
-                <h4 className="font-semibold text-blue-300">Actionable Improvements</h4>
+                <h4 className="font-semibold text-blue-300">
+                  Actionable Improvements
+                </h4>
               </div>
               <ul className="space-y-3">
                 {analysis.improvements?.map((item, i) => (
-                  <li key={i} className="text-sm text-gray-300 flex items-start gap-3 bg-gray-800/30 p-3 rounded-lg">
+                  <li
+                    key={i}
+                    className="text-sm text-gray-300 flex items-start gap-3 bg-gray-800/30 p-3 rounded-lg"
+                  >
                     <span className="text-blue-400 font-bold">{i + 1}.</span>
                     {item}
                   </li>
@@ -321,23 +365,33 @@ export default function ResumeAnalyzer() {
             {/* Keywords */}
             {analysis.keywords && (
               <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                <h4 className="font-semibold mb-4">Keyword Analysis</h4>
+                <h4 className="font-semibold.mb-4">Keyword Analysis</h4>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <div className="text-sm text-gray-400 mb-2">Present Keywords</div>
+                    <div className="text-sm text-gray-400 mb-2">
+                      Present Keywords
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {analysis.keywords.present?.map((kw, i) => (
-                        <span key={i} className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-300">
+                        <span
+                          key={i}
+                          className="px-3.py-1 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-300"
+                        >
                           {kw}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-400 mb-2">Recommended Keywords</div>
+                    <div className="text-sm text-gray-400 mb-2">
+                      Recommended Keywords
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {analysis.keywords.missing?.map((kw, i) => (
-                        <span key={i} className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-xs text-yellow-300">
+                        <span
+                          key={i}
+                          className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-xs text-yellow-300"
+                        >
                           {kw}
                         </span>
                       ))}
@@ -350,10 +404,15 @@ export default function ResumeAnalyzer() {
             {/* Recommendations */}
             {analysis.recommendations && (
               <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
-                <h4 className="font-semibold mb-4 text-purple-300">Expert Recommendations</h4>
+                <h4 className="font-semibold mb-4 text-purple-300">
+                  Expert Recommendations
+                </h4>
                 <ul className="space-y-2">
                   {analysis.recommendations.map((rec, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-purple-400">→</span>
                       {rec}
                     </li>
@@ -365,8 +424,8 @@ export default function ResumeAnalyzer() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <button
-                onClick={() => navigate('/personalized-roadmap')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold shadow-lg transition-all"
+                onClick={() => navigate("/personalized-roadmap")}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl.font-semibold shadow-lg transition-all"
               >
                 View Personalized Roadmap
               </button>

@@ -1,9 +1,9 @@
-// src/utils/apiService.js (or wherever you keep it)
+// src/utils/apiService.js
 
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5000" // ✅ Local backend during development
-    : "";                     // ✅ In production, use same origin as deployed URL
+// ✅ Central API base URL:
+// - In all environments, use VITE_API_URL if set (Render + local)
+// - If not set (e.g. fallback dev), use localhost
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 class ApiService {
   constructor() {
@@ -15,8 +15,8 @@ class ApiService {
 
     const config = {
       ...options,
-      // Don't set Content-Type manually for FormData
       headers: {
+        // Don't set Content-Type manually for FormData
         ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
@@ -38,7 +38,7 @@ class ApiService {
     }
   }
 
-  // --------- AUTH EXAMPLES (if you need them) ---------
+  // --------- AUTH ---------
   async login(payload) {
     return this.request("/api/login", {
       method: "POST",
@@ -68,6 +68,12 @@ class ApiService {
     });
   }
 
+  async getResumeStatus() {
+    return this.request("/api/resume/status", {
+      method: "GET",
+    });
+  }
+
   // --------- AI ---------
   async getAIFeedback(payload) {
     return this.request("/api/ai/interview-feedback", {
@@ -91,8 +97,8 @@ class ApiService {
     });
   }
 
-  async getProgress() {
-    return this.request("/api/progress", {
+  async getAttempts() {
+    return this.request("/api/progress/attempts", {
       method: "GET",
     });
   }

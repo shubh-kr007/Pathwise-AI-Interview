@@ -24,8 +24,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { API_BASE } from "../config/api";  // ✅ NEW IMPORT
 
 // --- Data helpers ---
 function loadAttempts() {
@@ -132,7 +131,7 @@ const ResumeUploadSection = () => {
     try {
       setUploading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/resume/analyze`, {
+      const response = await fetch(`${API_BASE}/api/resume/analyze`, {   // ✅ USE API_BASE
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -201,7 +200,7 @@ export default function Dashboard() {
       // Check resume status
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/api/resume/status`, {
+        const response = await fetch(`${API_BASE}/api/resume/status`, {   // ✅ USE API_BASE
           headers: { Authorization: `Bearer ${token}` }
         });
         
