@@ -77,6 +77,9 @@ PathWise/
 │
 └── README.md
 
+
+---
+
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
@@ -89,13 +92,13 @@ cd PathWise
 
 **Backend:**
 ```bash
-cd server
+cd backend
 npm install
 ```
 
 **Frontend:**
 ```bash
-cd ../client
+cd .frontend
 npm install
 ```
 
@@ -151,10 +154,10 @@ npm run dev
 
 ## 🔮 Future Enhancements
 
--🎤 Voice Interviews: Speech-to-Text integration for real-time oral answers.
--📹 Video Analysis: Body language and confidence analysis.
--🤝 Community Hub: A space for users to share roadmaps and tips.
--📱 Mobile App: React Native version for learning on the go.
+- 🎤 Voice Interviews: Speech-to-Text integration for real-time oral answers.
+- 📹 Video Analysis: Body language and confidence analysis.
+- 🤝 Community Hub: A space for users to share roadmaps and tips.
+- 📱 Mobile App: React Native version for learning on the go.
 
 ---
 
@@ -173,9 +176,9 @@ This is a college project actively under development! We welcome feedback and co
 ## 👨‍💻 Developed By
 
 Team PATHWISE
--> Shubh Kumar
--> Mohd. Saqib
--> Rishabh Srivastava
+- Shubh Kumar
+- Mohd. Saqib
+- Rishabh Srivastava
 
 
 
