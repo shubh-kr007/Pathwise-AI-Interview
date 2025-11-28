@@ -1,3 +1,5 @@
+
+const path = require("path");
 // backend/server.js
 const dotenv = require("dotenv");
 dotenv.config(); // Load environment variables first
@@ -14,6 +16,12 @@ const aiRoutes = require("./routes/aiRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+
+
+
+
 
 // ✅ CORS configuration
 const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
@@ -50,9 +58,18 @@ app.use("/api/resume", resumeRoutes);  // /api/resume/analyze, /api/resume/statu
 app.use("/api/ai", aiRoutes);          // /api/ai/generate-questions, /api/ai/interview-feedback
 app.use("/api/progress", progressRoutes);
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  });
+}
+
 // ✅ Start server
-const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 CORS allowed origin: ${allowedOrigin}`);
 });
+
