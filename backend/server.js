@@ -22,7 +22,9 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   // Allow these methods
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  
+  // Allow Cross-Origin-Opener-Policy for Google Sign-In
+  res.header("Cross-Origin-Opener-Policy", "unsafe-none");
+
   // Handle preflight quickly
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);

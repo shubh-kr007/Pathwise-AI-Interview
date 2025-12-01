@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://pathwise-j2t6.onrender.com/api';
+import { API_BASE } from '../config/api';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ export default function AuthCallback() {
         }
 
         // Call backend to verify and login
-        const res = await fetch(`${API_URL}/google-login`, {
+        const res = await fetch(`${API_BASE}/api/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: credential }),

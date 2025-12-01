@@ -65,7 +65,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-gray-400 text-sm leading-relaxed">
-            Helping you crack interviews with AI-powered mock sessions, resume tips, 
+            Helping you crack interviews with AI-powered mock sessions, resume tips,
             and progress tracking. Stay ahead and level up your career!
           </p>
           <div className="flex gap-4 mt-2 text-sm">

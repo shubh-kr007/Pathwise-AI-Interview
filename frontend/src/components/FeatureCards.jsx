@@ -72,7 +72,7 @@ export default function FeatureCards() {
               className="group relative bg-white/5 border border-gray-800 rounded-2xl p-6 cursor-pointer overflow-hidden hover:border-gray-600 transition-all"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
-              
+
               <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
                 {feature.icon}
               </div>
