@@ -5,3 +5,7 @@
 body {
     @apply bg-bg-primary text-white;
 }
+
+html {
+  scroll-behavior: smooth;
+}

@@ -1,11 +1,11 @@
 import React from 'react';
-import HeroSection from '../components/HeroSection';
+import CareerIntro from '../components/CareerIntro';
 import ParallaxPage from '../components/ParallaxPage';
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      <CareerIntro />
       <ParallaxPage />
     </>
   );

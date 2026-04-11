@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -8,111 +8,58 @@ import {
   Clock,
   Target,
   TrendingUp,
-  Users,
   Zap,
-  CheckCircle,
+  CheckCircle2,
   Play,
-  Lightbulb,
-  BarChart3,
   Award,
   Code2,
-  Server,
-  Settings,
-  Database,
-  Shield,
-  Briefcase,
+  Sparkles,
+  ArrowRight,
+  History,
+  BrainCircuit,
+  Terminal,
+  Cpu
 } from "lucide-react";
 
 const interviewTypes = [
   {
+    id: "mcq",
+    title: "MCQ Challenge",
+    subtitle: "Speed & Accuracy",
+    description: "Rapid-fire multiple choice questions to test your theoretical knowledge across various domains.",
+    icon: <Bot className="h-8 w-8 text-cyan-400" />,
+    duration: "20 min",
+    difficulty: "Medium",
+    gradient: "from-cyan-500/20 to-blue-500/20",
+    border: "group-hover:border-cyan-500/50",
+    textGradient: "from-cyan-400 to-blue-400",
+    features: ["Instant Feedback", "Topic Variety", "Score Tracking"]
+  },
+  {
+    id: "coding",
+    title: "Coding Lab",
+    subtitle: "Algorithms & Logic",
+    description: "Solve algorithmic problems in a real-time code editor. Focus on efficiency, edge cases, and clean syntax.",
+    icon: <Terminal className="h-8 w-8 text-fuchsia-400" />,
+    duration: "45 min",
+    difficulty: "Hard",
+    gradient: "from-fuchsia-500/20 to-purple-500/20",
+    border: "group-hover:border-fuchsia-500/50",
+    textGradient: "from-fuchsia-400 to-purple-400",
+    features: ["Syntax Highlighting", "Test Cases", "Time Complexity"]
+  },
+  {
     id: "technical",
-    title: "Technical Interview",
-    description: "Coding challenges, DSA, and problem-solving",
-    icon: <Bot className="h-8 w-8" />,
-    duration: "30-45 min",
-    difficulty: "Medium",
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    id: "behavioral",
-    title: "Behavioral Interview",
-    description: "STAR method, leadership, teamwork scenarios",
-    icon: <Users className="h-8 w-8" />,
-    duration: "20-30 min",
+    title: "Technical Dive",
+    subtitle: "Concepts & Design",
+    description: "Deep dive into system design and conceptual questions. Articulate your thoughts clearly.",
+    icon: <Cpu className="h-8 w-8 text-emerald-400" />,
+    duration: "15 min",
     difficulty: "Easy",
-    color: "from-green-500 to-emerald-500",
-  },
-  {
-    id: "system-design",
-    title: "System Design",
-    description: "Architecture, scalability, distributed systems",
-    icon: <Target className="h-8 w-8" />,
-    duration: "45-60 min",
-    difficulty: "Hard",
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    id: "frontend",
-    title: "Frontend Developer",
-    description: "React, Vue, Angular, CSS, JavaScript",
-    icon: <Code2 className="h-8 w-8" />,
-    duration: "35-45 min",
-    difficulty: "Medium",
-    color: "from-orange-500 to-red-500",
-  },
-  {
-    id: "backend",
-    title: "Backend Developer",
-    description: "APIs, databases, server-side programming",
-    icon: <Server className="h-8 w-8" />,
-    duration: "40-50 min",
-    difficulty: "Medium",
-    color: "from-indigo-500 to-blue-500",
-  },
-  {
-    id: "data-science",
-    title: "Data Science",
-    description: "ML, statistics, Python, data analysis",
-    icon: <Database className="h-8 w-8" />,
-    duration: "45-60 min",
-    difficulty: "Hard",
-    color: "from-teal-500 to-cyan-500",
-  },
-  {
-    id: "devops",
-    title: "DevOps Engineer",
-    description: "CI/CD, Docker, Kubernetes, cloud platforms",
-    icon: <Settings className="h-8 w-8" />,
-    duration: "35-45 min",
-    difficulty: "Medium",
-    color: "from-yellow-500 to-orange-500",
-  },
-  {
-    id: "security",
-    title: "Security Engineer",
-    description: "Cybersecurity, penetration testing, protocols",
-    icon: <Shield className="h-8 w-8" />,
-    duration: "40-50 min",
-    difficulty: "Hard",
-    color: "from-red-500 to-pink-500",
-  },
-  {
-    id: "product-manager",
-    title: "Product Management",
-    description: "Strategy, user research, roadmaps",
-    icon: <Lightbulb className="h-8 w-8" />,
-    duration: "30-40 min",
-    difficulty: "Medium",
-    color: "from-pink-500 to-rose-500",
-  },
-  {
-    id: "full-stack",
-    title: "Full Stack Developer",
-    description: "End-to-end development, MERN/MEAN stack",
-    icon: <Briefcase className="h-8 w-8" />,
-    duration: "45-60 min",
-    difficulty: "Hard",
-    color: "from-violet-500 to-purple-500",
+    gradient: "from-emerald-500/20 to-teal-500/20",
+    border: "group-hover:border-emerald-500/50",
+    textGradient: "from-emerald-400 to-teal-400",
+    features: ["System Design", "Oral Practice", "Key Concepts"]
   },
 ];
 
@@ -126,20 +73,15 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
-};
-
-const cardVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
+  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } },
 };
 
 export default function Interview() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [selectedType, setSelectedType] = useState(null);
+  const [hoveredType, setHoveredType] = useState(null);
 
-  // ✅ Load real user stats from localStorage
+  // Load real user stats from localStorage
   const [userStats, setUserStats] = useState({
     interviewsCompleted: 0,
     averageScore: 0,
@@ -149,12 +91,7 @@ export default function Interview() {
 
   useEffect(() => {
     loadUserStats();
-
-    // Listen for updates
-    const handleUpdate = () => {
-      loadUserStats();
-    };
-
+    const handleUpdate = () => loadUserStats();
     window.addEventListener("attempts-updated", handleUpdate);
     return () => window.removeEventListener("attempts-updated", handleUpdate);
   }, []);
@@ -163,7 +100,6 @@ export default function Interview() {
     try {
       const attemptsRaw = localStorage.getItem("interview_attempts_v1");
       const attempts = attemptsRaw ? JSON.parse(attemptsRaw) : [];
-
       const completed = attempts.length;
       const scores = attempts
         .filter((a) => typeof a.scorePercent === "number")
@@ -171,8 +107,9 @@ export default function Interview() {
       const avgScore = scores.length
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
         : 0;
-      const timeSaved = (completed * 0.75).toFixed(1); // Estimate 45min per interview
-      const successRate = avgScore > 0 ? Math.min(100, avgScore + 7) : 0; // Estimate
+      // Estimate 45min per interview
+      const timeSaved = (completed * 0.75).toFixed(1);
+      const successRate = avgScore > 0 ? Math.min(100, avgScore + 10) : 0;
 
       setUserStats({
         interviewsCompleted: completed,
@@ -185,201 +122,188 @@ export default function Interview() {
     }
   };
 
-  // ✅ Dynamic stats array based on real data
-  const stats = [
+  const dashboardStats = [
     {
-      label: "Interviews Completed",
-      value: userStats.interviewsCompleted.toString(),
-      icon: <CheckCircle className="h-5 w-5" />,
+      label: "Interviews",
+      value: userStats.interviewsCompleted,
+      icon: CheckCircle2,
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20"
     },
     {
-      label: "Average Score",
+      label: "Avg. Score",
       value: `${userStats.averageScore}%`,
-      icon: <TrendingUp className="h-5 w-5" />,
+      icon: TrendingUp,
+      color: "text-green-400",
+      bg: "bg-green-500/10",
+      border: "border-green-500/20"
     },
     {
-      label: "Time Saved",
+      label: "Time Invested",
       value: `${userStats.timeSaved}h`,
-      icon: <Clock className="h-5 w-5" />,
+      icon: Clock,
+      color: "text-purple-400",
+      bg: "bg-purple-500/10",
+      border: "border-purple-500/20"
     },
     {
-      label: "Success Rate",
+      label: "Readiness",
       value: `${userStats.successRate}%`,
-      icon: <Award className="h-5 w-5" />,
+      icon: Award,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20"
     },
   ];
 
-  const handleStartInterview = (type) => {
-    navigate(`/interview-room?type=${type}`);
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="p-4 sm:p-6 lg:p-8 mt-20">
+    <div className="relative min-h-screen bg-black text-white overflow-hidden font-sans selection:bg-purple-500/30">
+
+      {/* Abstract Background Blobs */}
+      <div className="absolute top-0 -left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute bottom-0 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[128px] pointer-events-none" />
+
+      <div className="relative z-10 p-6 md:p-12 max-w-7xl mx-auto pt-48">
         <motion.div
-          className="max-w-7xl mx-auto"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
+          className="space-y-12"
         >
-          {/* Header Section */}
-          <motion.div variants={itemVariants} className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-              AI Interview Room
-            </h1>
-            <p className="text-xl text-gray-300 mb-6">
-              Welcome back, {user?.name || "there"}! Ready to ace your next interview?
-            </p>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="inline-block px-6 py-2 bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-300 font-semibold"
-            >
-              <Zap className="inline h-4 w-4 mr-2" />
-              Powered by Advanced AI
-            </motion.div>
-          </motion.div>
+          {/* Hero Section */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div variants={itemVariants}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-6 backdrop-blur-md mt-12">
+                <Sparkles size={14} className="text-yellow-400" />
+                <span>AI-Powered Prep v2.0</span>
+              </div>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
+                Master Your <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                  Next Interview
+                </span>
+              </h1>
+              <p className="text-xl text-gray-400 max-w-lg leading-relaxed mb-8">
+                Experience realistic interview scenarios tailored to your role.
+                Get instant AI feedback and track your growth.
+              </p>
 
-          {/* Stats Section */}
-          <motion.div variants={itemVariants} className="mb-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  className="bg-white/5 border border-gray-800 rounded-xl p-4 text-center"
-                  variants={cardVariants}
-                  whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={() => document.getElementById("interview-types").scrollIntoView({ behavior: "smooth" })}
+                  className="px-8 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all transform hover:scale-105 flex items-center gap-2"
                 >
-                  <div className="flex items-center justify-center mb-2 text-blue-400">
-                    {stat.icon}
-                  </div>
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-sm text-gray-400">{stat.label}</div>
+                  Start Practice <ArrowRight size={18} />
+                </button>
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-8 py-4 bg-white/5 border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 transition-all backdrop-blur-md flex items-center gap-2"
+                >
+                  <History size={18} /> History
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Stats Dashboard Grid in Hero */}
+            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+              {dashboardStats.map((stat, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -5 }}
+                  className={`p-6 rounded-2xl border ${stat.border} ${stat.bg} backdrop-blur-xl flex flex-col items-center justify-center text-center gap-2`}
+                >
+                  <stat.icon className={`w-8 h-8 ${stat.color} mb-2`} />
+                  <span className="text-3xl font-bold">{stat.value}</span>
+                  <span className="text-sm text-gray-400 uppercase tracking-wider">{stat.label}</span>
                 </motion.div>
               ))}
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
-          {/* Interview Types Grid */}
-          <motion.div variants={itemVariants} className="mb-12">
-            <h2 className="text-3xl font-bold mb-8 text-center">
-              Choose Your Interview Type
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-              {interviewTypes.map((type, index) => (
+          {/* Interview Types Section */}
+          <div id="interview-types" className="pt-10">
+            <motion.div variants={itemVariants} className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold flex items-center gap-3">
+                <BrainCircuit className="text-purple-500" />
+                Select Mode
+              </h2>
+              <div className="hidden md:flex gap-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-sm text-gray-400">System Online</span>
+              </div>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {interviewTypes.map((type) => (
                 <motion.div
                   key={type.id}
-                  className={`bg-white/5 border border-gray-800 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:border-gray-600 ${
-                    selectedType === type.id
-                      ? "ring-2 ring-blue-500 bg-blue-500/10"
-                      : ""
-                  }`}
-                  variants={cardVariants}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedType(type.id)}
+                  variants={itemVariants}
+                  whileHover={{ y: -8 }}
+                  onHoverStart={() => setHoveredType(type.id)}
+                  onHoverEnd={() => setHoveredType(null)}
+                  className={`group relative bg-gray-900/40 border border-gray-800 hover:border-gray-600 rounded-3xl p-1 overflow-hidden transition-all duration-300`}
                 >
-                  <div
-                    className={`w-16 h-16 rounded-xl bg-gradient-to-r ${type.color} flex items-center justify-center text-white mb-4 mx-auto`}
-                  >
-                    {type.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2 text-center">{type.title}</h3>
-                  <p className="text-gray-400 text-sm mb-4 text-center">
-                    {type.description}
-                  </p>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">{type.duration}</span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        type.difficulty === "Easy"
-                          ? "bg-green-500/20 text-green-400"
-                          : type.difficulty === "Medium"
-                          ? "bg-yellow-500/20 text-yellow-400"
-                          : "bg-red-500/20 text-red-400"
-                      }`}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${type.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                  <div className="relative h-full bg-black/80 rounded-[22px] p-6 flex flex-col backdrop-blur-sm z-10 transition-colors">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className={`p-3 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors ${type.textGradient}`}>
+                        {type.icon}
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/5 ${type.textGradient.replace("text", "text")}`}>
+                        {type.duration}
+                      </span>
+                    </div>
+
+                    <h3 className={`text-2xl font-bold mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${type.textGradient} transition-all`}>
+                      {type.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm mb-4">{type.subtitle}</p>
+                    <p className="text-gray-400 leading-relaxed text-sm mb-6 flex-grow">
+                      {type.description}
+                    </p>
+
+                    <div className="space-y-3 mb-8">
+                      {type.features.map((feat, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-gray-500">
+                          <CheckCircle2 size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
+                          {feat}
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => navigate(`/interview-room?type=${type.id}`)}
+                      className="w-full py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white text-white hover:text-black font-semibold transition-all flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-white/10"
                     >
-                      {type.difficulty}
-                    </span>
+                      Initialize <ArrowRight size={16} />
+                    </button>
                   </div>
                 </motion.div>
               ))}
             </div>
+          </div>
+
+          {/* Quick Tips or Footer */}
+          <motion.div variants={itemVariants} className="grid md:grid-cols-3 gap-6 pt-10 border-t border-gray-800">
+            {[
+              { icon: Target, title: "Be Specific", desc: "Use metrics and real examples." },
+              { icon: Zap, title: "Stay Calm", desc: "Take a breath before answering." },
+              { icon: BookOpen, title: "Review", desc: "Check AI feedback after every session." }
+            ].map((tip, i) => (
+              <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                <div className="p-2 rounded-lg bg-gray-800 text-gray-300">
+                  <tip.icon size={20} />
+                </div>
+                <div>
+                  <h6 className="font-semibold">{tip.title}</h6>
+                  <p className="text-xs text-gray-500">{tip.desc}</p>
+                </div>
+              </div>
+            ))}
           </motion.div>
 
-          {/* Action Buttons */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <motion.button
-              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!selectedType}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => selectedType && handleStartInterview(selectedType)}
-            >
-              <Play className="h-5 w-5" />
-              Start{" "}
-              {selectedType
-                ? interviewTypes.find((t) => t.id === selectedType)?.title
-                : "Interview"}
-            </motion.button>
-
-            <motion.button
-              className="flex items-center gap-3 px-8 py-4 border border-gray-600 hover:border-white hover:bg-white/5 rounded-xl font-semibold transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/interview-tips")}
-            >
-              <BookOpen className="h-5 w-5" />
-              Interview Tips
-            </motion.button>
-
-            <motion.button
-              className="flex items-center gap-3 px-8 py-4 border border-gray-600 hover:border-white hover:bg-white/5 rounded-xl font-semibold transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/dashboard")}
-            >
-              <BarChart3 className="h-5 w-5" />
-              View Progress
-            </motion.button>
-          </motion.div>
-
-          {/* Quick Tips Section */}
-          <motion.div
-            variants={itemVariants}
-            className="mt-16 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-2xl p-8"
-          >
-            <h3 className="text-2xl font-bold mb-6 text-center text-blue-300">
-              💡 Quick Interview Tips
-            </h3>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl mb-3">🎯</div>
-                <h4 className="font-semibold mb-2">Be Specific</h4>
-                <p className="text-gray-400 text-sm">
-                  Use concrete examples and metrics in your answers
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl mb-3">🤝</div>
-                <h4 className="font-semibold mb-2">Stay Calm</h4>
-                <p className="text-gray-400 text-sm">
-                  Take deep breaths and think before responding
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl mb-3">❓</div>
-                <h4 className="font-semibold mb-2">Ask Questions</h4>
-                <p className="text-gray-400 text-sm">
-                  Show interest by asking thoughtful questions
-                </p>
-              </div>
-            </div>
-          </motion.div>
         </motion.div>
       </div>
     </div>

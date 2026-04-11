@@ -2,19 +2,18 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Bot, 
-  ListChecks, 
-  Code2, 
-  BookOpenCheck, 
-  ChevronLeft, 
-  ChevronRight, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Bot,
+  ListChecks,
+  Code2,
+  BookOpenCheck,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
   RotateCcw,
-  Sparkles,
-  Brain,
-  MessageSquare
+  MessageSquare,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "../components/ToastProvider";
 import InterviewRoomSkeleton from "../components/InterviewRoomSkeleton";
@@ -27,7 +26,7 @@ import { API_BASE } from "../config/api";
 const MODES = [
   { id: "mcq", label: "MCQ Based", icon: ListChecks },
   { id: "coding", label: "Coding Based", icon: Code2 },
-  { id: "quiz", label: "Quiz Based", icon: BookOpenCheck },
+  { id: "technical", label: "Technical Based", icon: BookOpenCheck },
 ];
 
 function useQuery() {
@@ -37,7 +36,7 @@ function useQuery() {
 
 // Question bank for fallback/offline use
 const QUESTION_BANK = {
-  technical: {
+  mcq: {
     mcq: [
       {
         id: "t-m-1",
@@ -75,6 +74,8 @@ const QUESTION_BANK = {
         explanation: "FETCH is not an HTTP method. Common methods are GET, POST, PUT, DELETE, PATCH.",
       },
     ],
+  },
+  coding: {
     coding: [
       {
         id: "t-c-1",
@@ -107,7 +108,9 @@ const QUESTION_BANK = {
         rubric: ["Two-pointer technique", "Edge cases", "Space optimization"]
       },
     ],
-    quiz: [
+  },
+  technical: {
+    technical: [
       {
         id: "t-q-1",
         prompt: "Briefly describe the difference between processes and threads.",
@@ -140,188 +143,6 @@ const QUESTION_BANK = {
       },
     ],
   },
-  behavioral: {
-    mcq: [
-      {
-        id: "b-m-1",
-        prompt: "Which structure best fits the STAR method?",
-        options: ["Setup, Try, Answer, Result", "Situation, Task, Action, Result", "Scenario, Target, Action, Review", "State, Task, Action, Review"],
-        answerIndex: 1,
-        explanation: "STAR stands for Situation, Task, Action, Result.",
-      },
-      {
-        id: "b-m-2",
-        prompt: "Best response to a conflict question emphasizes...",
-        options: ["Blame others", "Avoid details", "Concrete actions/outcomes", "Speak generally"],
-        answerIndex: 2,
-        explanation: "Use specifics: actions taken and measurable outcomes.",
-      },
-      {
-        id: "b-m-3",
-        prompt: "When describing a failure, you should focus on:",
-        options: ["What went wrong", "Who was responsible", "What you learned", "Why it wasn't your fault"],
-        answerIndex: 2,
-        explanation: "Focus on lessons learned and growth from the experience.",
-      },
-      {
-        id: "b-m-4",
-        prompt: "In behavioral interviews, 'Tell me about yourself' should:",
-        options: ["Cover your entire life story", "Focus on recent relevant experience", "Be under 30 seconds", "Include personal hobbies"],
-        answerIndex: 1,
-        explanation: "Focus on recent, relevant professional experience in 1-2 minutes.",
-      },
-      {
-        id: "b-m-5",
-        prompt: "When asked about teamwork, best to emphasize:",
-        options: ["Your leadership only", "Individual contributions", "Collaboration and shared success", "Team problems"],
-        answerIndex: 2,
-        explanation: "Highlight collaboration, communication, and collective achievements.",
-      },
-    ],
-    coding: [
-      {
-        id: "b-c-1",
-        prompt: "Write a concise STAR-format paragraph about handling a tight deadline.",
-        starter: `// Use STAR structure\n// S: \n// T: \n// A: \n// R: `,
-        rubric: ["Clarity", "Specificity", "Outcome"]
-      },
-      {
-        id: "b-c-2",
-        prompt: "Describe a time you resolved a team conflict using STAR method.",
-        starter: `// Situation:\n// Task:\n// Action:\n// Result:`,
-        rubric: ["Conflict resolution", "Communication", "Positive outcome"]
-      },
-      {
-        id: "b-c-3",
-        prompt: "Write about a time you took initiative on a project.",
-        starter: `// STAR format response here`,
-        rubric: ["Proactivity", "Impact", "Leadership"]
-      },
-    ],
-    quiz: [
-      {
-        id: "b-q-1",
-        prompt: "Describe a time you received critical feedback and what you changed.",
-        placeholder: "Type your answer here...",
-        checklist: ["Ownership", "Action taken", "Result"]
-      },
-      {
-        id: "b-q-2",
-        prompt: "Tell me about a time you failed and what you learned.",
-        placeholder: "Type your answer here...",
-        checklist: ["Honest reflection", "Growth mindset", "Applied learning"]
-      },
-      {
-        id: "b-q-3",
-        prompt: "Describe a situation where you had to work with a difficult team member.",
-        placeholder: "Type your answer here...",
-        checklist: ["Patience", "Communication", "Resolution"]
-      },
-      {
-        id: "b-q-4",
-        prompt: "Give an example of a time you showed leadership.",
-        placeholder: "Type your answer here...",
-        checklist: ["Initiative", "Influence", "Impact"]
-      },
-      {
-        id: "b-q-5",
-        prompt: "Describe a time you went above and beyond your job responsibilities.",
-        placeholder: "Type your answer here...",
-        checklist: ["Extra effort", "Value added", "Recognition"]
-      },
-    ],
-  },
-  "system-design": {
-    mcq: [
-      {
-        id: "s-m-1",
-        prompt: "Which component primarily improves read scalability?",
-        options: ["Write-through cache", "Load balancer", "Message queue", "Sharded DB"],
-        answerIndex: 1,
-        explanation: "Load balancer distributes reads across replicas/services.",
-      },
-      {
-        id: "s-m-2",
-        prompt: "Eventual consistency is typically associated with...",
-        options: ["CP systems", "AP systems", "CA systems", "ACID RDBMS"],
-        answerIndex: 1,
-        explanation: "AP-favoring systems often accept eventual consistency.",
-      },
-      {
-        id: "s-m-3",
-        prompt: "Which is best for handling 1M+ concurrent websocket connections?",
-        options: ["Shared memory", "Message queue", "Load balancer with sticky sessions", "Single server"],
-        answerIndex: 2,
-        explanation: "Load balancer with sticky sessions maintains connection state efficiently.",
-      },
-      {
-        id: "s-m-4",
-        prompt: "What is the CAP theorem?",
-        options: ["Caching, API, Performance", "Consistency, Availability, Partition tolerance", "Client, Application, Protocol", "Cache, Analytics, Processing"],
-        answerIndex: 1,
-        explanation: "CAP theorem states you can only guarantee 2 of 3: Consistency, Availability, Partition tolerance.",
-      },
-      {
-        id: "s-m-5",
-        prompt: "Which database is best for time-series data?",
-        options: ["MySQL", "MongoDB", "InfluxDB", "Redis"],
-        answerIndex: 2,
-        explanation: "InfluxDB is specifically optimized for time-series data.",
-      },
-    ],
-    coding: [
-      {
-        id: "s-c-1",
-        prompt: "Sketch a simple API contract for a URL shortener service.",
-        starter: `POST /shorten { url } -> { code }\nGET /:code -> 301 redirect\n// Add notes on rate limiting and analytics`,
-        rubric: ["REST clarity", "Edge cases", "Non-functional needs"]
-      },
-      {
-        id: "s-c-2",
-        prompt: "Design the data schema for a Twitter-like feed system.",
-        starter: `// Tables/Collections:\n// Users:\n// Posts:\n// Relationships:`,
-        rubric: ["Normalization", "Indexing", "Scalability"]
-      },
-      {
-        id: "s-c-3",
-        prompt: "Outline the architecture for a real-time chat application.",
-        starter: `// Components:\n// 1. Client\n// 2. WebSocket server\n// 3. Message queue\n// 4. Database`,
-        rubric: ["Real-time handling", "Scalability", "Data consistency"]
-      },
-    ],
-    quiz: [
-      {
-        id: "s-q-1",
-        prompt: "Explain trade-offs between sharding and replication.",
-        placeholder: "Type your answer here...",
-        checklist: ["Scale-out", "Availability", "Complexity"]
-      },
-      {
-        id: "s-q-2",
-        prompt: "How would you design a notification system for 100M users?",
-        placeholder: "Type your answer here...",
-        checklist: ["Push/Pull strategy", "Scalability", "Delivery guarantees"]
-      },
-      {
-        id: "s-q-3",
-        prompt: "Explain how you would handle rate limiting in a distributed system.",
-        placeholder: "Type your answer here...",
-        checklist: ["Token bucket", "Distributed state", "Fairness"]
-      },
-      {
-        id: "s-q-4",
-        prompt: "Design a caching strategy for an e-commerce product catalog.",
-        placeholder: "Type your answer here...",
-        checklist: ["Cache invalidation", "Hit rate", "Consistency"]
-      },
-      {
-        id: "s-q-5",
-        prompt: "How would you design a video streaming service like YouTube?",
-        placeholder: "Type your answer here...",
-        checklist: ["CDN", "Encoding", "Storage", "Scalability"]
-      },
-    ],
-  },
 };
 
 function Header({ title, subtitle }) {
@@ -338,9 +159,8 @@ export default function InterviewRoom() {
   const navigate = useNavigate();
   const { push } = useToast();
   const { user } = useAuth();
-  const interviewType = (query.get("type") || "technical").toLowerCase();
-
-  const [mode, setMode] = useState(null);
+  const interviewType = (query.get("type") || "mcq").toLowerCase();
+  const [mode, setMode] = useState(interviewType);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -349,40 +169,87 @@ export default function InterviewRoom() {
   const [showWarning, setShowWarning] = useState(false);
   const QUESTION_TIME = 60;
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
-  
+
   const [aiFeedback, setAiFeedback] = useState(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
 
-  const questions = useMemo(() => {
-    const bank = QUESTION_BANK[interviewType] || QUESTION_BANK.technical;
-    if (!mode) return [];
+  const [questions, setQuestions] = useState([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
 
-    const padToLength = (arr, target = 15) => {
-      if (!Array.isArray(arr) || arr.length === 0) return [];
-      if (arr.length >= target) return arr.slice(0, target);
-      const out = [...arr];
-      let idx = 0;
-      while (out.length < target) {
-        const base = arr[idx % arr.length];
-        const copyIndex = out.length + 1;
-        const cloned = { ...base };
-        cloned.id = `${base.id}-x${copyIndex}`;
-        if (typeof base.answerIndex === "number") {
-          cloned.prompt = `${base.prompt} (variant ${copyIndex})`;
-        } else if (base.starter) {
-          cloned.prompt = `${base.prompt} (v${copyIndex})`;
-        } else if (base.placeholder) {
-          cloned.prompt = `${base.prompt} (v${copyIndex})`;
+  // Load questions (AI or Fallback)
+  useEffect(() => {
+    if (!mode) return;
+
+    let mounted = true;
+
+    const fetchQuestions = async () => {
+      setLoadingQuestions(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/api/ai/generate-questions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ type: mode }),
+        });
+
+        const data = await response.json();
+
+        if (mounted) {
+          if (response.ok && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            setQuestions(data.questions);
+          } else {
+            throw new Error("Use fallback");
+          }
         }
-        out.push(cloned);
-        idx++;
+      } catch (error) {
+        if (mounted) {
+          console.log("Using fallback questions:", error);
+          // Fallback logic
+          const bank = QUESTION_BANK[mode] || QUESTION_BANK.technical;
+          const list = bank[mode] || []; // This should be an array
+
+          // Robust padToLength
+          const padToLength = (arr, target = 5) => {
+            if (!Array.isArray(arr) || arr.length === 0) return [];
+            // Create deep copy to avoid reference issues
+            const base = arr.map(q => ({ ...q }));
+            // If we have enough, just slice
+            if (base.length >= target) return base.slice(0, target);
+
+            // If not enough, duplicate until we have enough
+            let result = [...base];
+            while (result.length < target) {
+              result = [...result, ...base];
+            }
+            return result.slice(0, target).map((q, i) => ({ ...q, id: `${q.id}-dup-${i}` }));
+          };
+
+          const fallbackQuestions = padToLength(list, 5);
+          if (fallbackQuestions.length > 0) {
+            setQuestions(fallbackQuestions);
+          } else {
+            // Last resort fallback if bank is empty
+            setQuestions([{
+              id: 'fallback-error',
+              prompt: 'Error loading questions. Please try again.',
+              options: [],
+              rubric: [],
+              checklist: []
+            }]);
+          }
+        }
+      } finally {
+        if (mounted) setLoadingQuestions(false);
       }
-      return out;
     };
 
-    const list = bank[mode] || [];
-    return padToLength(list, 15);
-  }, [interviewType, mode]);
+    fetchQuestions();
+
+    return () => { mounted = false; };
+  }, [mode]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -399,17 +266,22 @@ export default function InterviewRoom() {
   const current = questions[currentIndex];
 
   const [optionMap, setOptionMap] = useState({});
+
   useEffect(() => {
-    if (!mode || questions.length === 0) return;
+    if (!mode || !questions || questions.length === 0) return;
     if (mode !== "mcq") {
       setOptionMap({});
       return;
     }
+
     const map = {};
     questions.forEach((q) => {
-      const order = [...q.options.keys()].sort(() => Math.random() - 0.5);
-      const newAnswerIndex = order.indexOf(q.answerIndex);
-      map[q.id] = { order, answerIndex: newAnswerIndex };
+      // Safety check for options
+      if (q && Array.isArray(q.options)) {
+        const order = [...q.options.keys()].sort(() => Math.random() - 0.5);
+        const newAnswerIndex = order.indexOf(q.answerIndex);
+        map[q.id] = { order, answerIndex: newAnswerIndex };
+      }
     });
     setOptionMap(map);
   }, [mode, questions]);
@@ -461,7 +333,7 @@ export default function InterviewRoom() {
       setLoadingFeedback(true);
       try {
         const token = localStorage.getItem("token");
-        
+
         const feedbackResponse = await fetch(`${API_BASE}/api/ai/interview-feedback`, {
           method: "POST",
           headers: {
@@ -517,16 +389,16 @@ export default function InterviewRoom() {
         localStorage.setItem("practice_plan_v1", JSON.stringify(plan));
         try {
           window.dispatchEvent(new CustomEvent("attempts-updated"));
-        } catch {}
+        } catch { }
         try {
           push("Interview completed! AI feedback generated.", { type: "success" });
-        } catch {}
+        } catch { }
       } else {
         throw new Error("Failed to save attempt to backend");
       }
     } catch (error) {
       console.error("Error saving attempt:", error);
-      
+
       // Fallback using session manager
       try {
         const ts = Date.now();
@@ -541,14 +413,14 @@ export default function InterviewRoom() {
           });
           percent = Math.round((correct / questions.length) * 100);
         }
-        
+
         sessionManager.saveInterviewAttempt({
           type: interviewType,
           mode,
           timestamp: ts,
           scorePercent: percent,
         });
-        
+
         const report = buildReport({
           interviewType,
           mode,
@@ -558,17 +430,17 @@ export default function InterviewRoom() {
           mcqPercent: percent,
         });
         localStorage.setItem("last_report_v1", JSON.stringify({ ...report, timestamp: ts }));
-        
+
         const plan = buildPracticePlan(report);
         localStorage.setItem("practice_plan_v1", JSON.stringify(plan));
-        
+
         try {
           window.dispatchEvent(new CustomEvent("attempts-updated"));
-        } catch {}
-        
+        } catch { }
+
         try {
           push("Interview attempt saved locally!", { type: "success" });
-        } catch {}
+        } catch { }
       } catch (fallbackError) {
         console.error("Fallback save failed:", fallbackError);
       }
@@ -603,7 +475,7 @@ export default function InterviewRoom() {
       structureCount = 0;
     questions.forEach((q) => {
       const ans = answers[q.id];
-      if (mode === "coding" || mode === "quiz") {
+      if (mode === "coding" || mode === "technical") {
         if (typeof ans === "string") {
           claritySum += scoreClarityFromText(ans);
           clarityCount += 1;
@@ -616,13 +488,13 @@ export default function InterviewRoom() {
     const clarity = clarityCount
       ? Math.round(claritySum / clarityCount)
       : mode === "mcq"
-      ? 70
-      : 0;
+        ? 70
+        : 0;
     const structure = structureCount
       ? Math.round(structureSum / structureCount)
       : mode === "mcq"
-      ? 65
-      : 0;
+        ? 65
+        : 0;
     const strengths = [];
     const weaknesses = [];
     if (correctness >= 75) strengths.push("Correctness");
@@ -745,40 +617,14 @@ export default function InterviewRoom() {
   }, [mode, showWarning, questions.length, currentIndex, current, submitted]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-5xl mx-auto px-4 pt-24 pb-10">
+    <div className="relative min-h-screen bg-black text-white overflow-hidden">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-48 pb-10">
         <Header
           title="Interview Room"
           subtitle={`Type: ${interviewType.replace("-", " ").toUpperCase()}`}
         />
 
-        {!mode && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {MODES.map((m) => (
-              <motion.button
-                key={m.id}
-                onClick={() => setMode(m.id)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                className="cursor-pointer bg-white/5 border border-gray-800 rounded-2xl p-6 text-left hover:border-gray-600 transition relative overflow-hidden"
-              >
-                <span className="pointer-events-none absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-fuchsia-600/30 to-cyan-500/30 rounded-full blur-2xl"></span>
-                <div className="flex items-center gap-3 mb-3">
-                  <m.icon className="text-purple-400" />
-                  <span className="font-semibold">{m.label}</span>
-                </div>
-                <p className="text-sm text-gray-400">
-                  {m.id === "mcq" &&
-                    "Multiple-choice questions with instant scoring."}
-                  {m.id === "coding" &&
-                    "Write code or structured answers. Focus on clarity and correctness."}
-                  {m.id === "quiz" &&
-                    "Short-form responses with a self-review checklist."}
-                </p>
-              </motion.button>
-            ))}
-          </div>
-        )}
+        {/* Mode selection removed as it's auto-selected from URL */}
 
         {mode && (
           <div className="mt-6">
@@ -789,12 +635,6 @@ export default function InterviewRoom() {
                 <span className="uppercase text-xs tracking-wider">{mode} mode</span>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setMode(null)}
-                  className="cursor-pointer px-3 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-white/5"
-                >
-                  Change Mode
-                </button>
                 <button
                   onClick={() => navigate("/interview")}
                   className="cursor-pointer px-3 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-white/5"
@@ -828,10 +668,7 @@ export default function InterviewRoom() {
                         I'm Ready 🚀
                       </button>
                       <button
-                        onClick={() => {
-                          setMode(null);
-                          setShowWarning(false);
-                        }}
+                        onClick={() => navigate("/interview")}
                         className="cursor-pointer px-5 py-2 rounded-lg border border-gray-700 hover:bg-white/5"
                       >
                         Change Mode
@@ -842,8 +679,16 @@ export default function InterviewRoom() {
               </div>
             )}
 
+            {/* Loading State */}
+            {loadingQuestions && (
+              <div className="text-center py-20">
+                <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-400">Generating unique interview questions with AI...</p>
+              </div>
+            )}
+
             {/* Question card */}
-            {questions.length > 0 ? (
+            {!loadingQuestions && questions.length > 0 ? (
               <div className="bg-white/5 border border-gray-800 rounded-2xl p-6">
                 {/* Timer Bar */}
                 {!submitted && !showWarning && (
@@ -851,18 +696,16 @@ export default function InterviewRoom() {
                     <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
                       <span>Time Left</span>
                       <span
-                        className={`${
-                          timeLeft <= 10 ? "text-red-400" : "text-gray-300"
-                        } font-semibold`}
+                        className={`${timeLeft <= 10 ? "text-red-400" : "text-gray-300"
+                          } font-semibold`}
                       >
                         {timeLeft}s
                       </span>
                     </div>
                     <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
                       <div
-                        className={`h-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 transition-all duration-1000 ${
-                          timeLeft <= 10 ? "animate-pulse" : ""
-                        }`}
+                        className={`h-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 transition-all duration-1000 ${timeLeft <= 10 ? "animate-pulse" : ""
+                          }`}
                         style={{
                           width: `${Math.max(0, (timeLeft / QUESTION_TIME) * 100)}%`,
                         }}
@@ -879,22 +722,20 @@ export default function InterviewRoom() {
                     <button
                       disabled={!canPrev}
                       onClick={() => canPrev && setCurrentIndex((i) => i - 1)}
-                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                        canPrev
-                          ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                          : "border-gray-800 opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${canPrev
+                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
+                        : "border-gray-800 opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       <ChevronLeft size={16} /> Prev
                     </button>
                     <button
                       disabled={!canNext}
                       onClick={() => canNext && setCurrentIndex((i) => i + 1)}
-                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                        canNext
-                          ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                          : "border-gray-800 opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${canNext
+                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
+                        : "border-gray-800 opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       Next <ChevronRight size={16} />
                     </button>
@@ -924,13 +765,11 @@ export default function InterviewRoom() {
                             key={idx}
                             disabled={reveal}
                             onClick={() => handleAnswer(current.id, idx)}
-                            className={`cursor-pointer w-full text-left px-4 py-3 rounded-lg border transition ${
-                              selected
-                                ? "border-purple-500/60 bg-purple-500/10"
-                                : "border-gray-700 hover:bg-white/5"
-                            } ${isCorrect ? "!border-green-500/60 bg-green-500/10" : ""} ${
-                              isWrong ? "!border-red-500/60 bg-red-500/10" : ""
-                            }`}
+                            className={`cursor-pointer w-full text-left px-4 py-3 rounded-lg border transition ${selected
+                              ? "border-purple-500/60 bg-purple-500/10"
+                              : "border-gray-700 hover:bg-white/5"
+                              } ${isCorrect ? "!border-green-500/60 bg-green-500/10" : ""} ${isWrong ? "!border-red-500/60 bg-red-500/10" : ""
+                              }`}
                           >
                             <div className="flex items-center justify-between">
                               <span>{opt}</span>
@@ -1009,8 +848,8 @@ export default function InterviewRoom() {
                   </div>
                 )}
 
-                {/* Quiz Mode */}
-                {mode === "quiz" && (
+                {/* Technical Mode */}
+                {mode === "technical" && (
                   <div className="space-y-3">
                     <textarea
                       rows={6}
@@ -1055,11 +894,10 @@ export default function InterviewRoom() {
                     <button
                       disabled={!canPrev}
                       onClick={() => canPrev && setCurrentIndex((i) => i - 1)}
-                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                        canPrev
-                          ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                          : "border-gray-800 opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${canPrev
+                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
+                        : "border-gray-800 opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       <ChevronLeft size={16} /> Previous
                     </button>
@@ -1069,11 +907,10 @@ export default function InterviewRoom() {
                         if (!questionSubmitted[current.id]) submitCurrentQuestion();
                         if (canNext) setCurrentIndex((i) => i + 1);
                       }}
-                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                        canNext
-                          ? "border-gray-700 hover:bg.white/5 cursor-pointer"
-                          : "border-gray-800 opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${canNext
+                        ? "border-gray-700 hover:bg.white/5 cursor-pointer"
+                        : "border-gray-800 opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       Next <ChevronRight size={16} />
                     </button>

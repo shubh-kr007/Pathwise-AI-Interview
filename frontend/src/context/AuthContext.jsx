@@ -100,6 +100,7 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.setItem("token", token);
     localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("justLoggedIn", "true"); // ✅ Trigger chatbot open
 
     const userObj = {
       name: userData.name || "",

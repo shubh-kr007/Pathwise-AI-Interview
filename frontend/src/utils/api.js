@@ -1,121 +1,49 @@
-// src/utils/apiService.js
+import axiosInstance from "./axios";
 
-// ✅ Central API base URL:
-// - In all environments, use VITE_API_URL if set (Render + local)
-// - If not set (e.g. fallback dev), use localhost
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-class ApiService {
-  constructor() {
-    this.baseURL = API_URL;
-  }
-
-  async request(endpoint, options = {}) {
-    const token = localStorage.getItem("token");
-
-    const config = {
-      ...options,
-      headers: {
-        // Don't set Content-Type manually for FormData
-        ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
-    };
-
+// API methods
+const api = {
+  // Get interview attempts
+  async getAttempts() {
     try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, config);
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.message || "Request failed");
-      }
-
-      return data;
+      const response = await axiosInstance.get("/api/progress/attempts");
+      return response.data;
     } catch (error) {
-      console.error("API Error:", error);
-      throw error;
+      // Fallback to localStorage if API fails
+      console.warn("API call failed, falling back to localStorage:", error.message);
+      const raw = localStorage.getItem("interview_attempts_v1");
+      return raw ? JSON.parse(raw) : [];
     }
-  }
+  },
 
-  // --------- AUTH ---------
-  async login(payload) {
-    return this.request("/api/login", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  }
+  // Other API methods can be added here as needed
+  async getUserProfile() {
+    const response = await axiosInstance.get("/api/user/profile");
+    return response.data;
+  },
 
-  async signup(payload) {
-    return this.request("/api/signup", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  }
-
-  async googleLogin(idToken) {
-    return this.request("/api/google-login", {
-      method: "POST",
-      body: JSON.stringify({ token: idToken }),
-    });
-  }
-
-  // --------- RESUME ---------
-  async analyzeResume(formData) {
-    return this.request("/api/resume/analyze", {
-      method: "POST",
-      body: formData, // FormData directly
-    });
-  }
+  async updateUserProfile(data) {
+    const response = await axiosInstance.put("/api/user/profile", data);
+    return response.data;
+  },
 
   async getResumeStatus() {
-    return this.request("/api/resume/status", {
-      method: "GET",
-    });
-  }
+    const response = await axiosInstance.get("/api/resume/status");
+    return response.data;
+  },
 
-  // --------- AI ---------
-  async getAIFeedback(payload) {
-    return this.request("/api/ai/interview-feedback", {
-      method: "POST",
-      body: JSON.stringify(payload),
+  async analyzeResume(formData) {
+    const response = await axiosInstance.post("/api/resume/analyze", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
-  }
+    return response.data;
+  },
 
-  async generateQuestions(payload) {
-    return this.request("/api/ai/generate-questions", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  }
+  async chatWithAI(message) {
+    const response = await axiosInstance.post("/api/ai/chat", { message });
+    return response.data;
+  },
+};
 
-  // --------- PROGRESS ---------
-  async saveAttempt(payload) {
-    return this.request("/api/progress/save-attempt", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  }
-
-  async getAttempts() {
-    return this.request("/api/progress/attempts", {
-      method: "GET",
-    });
-  }
-
-  // --------- USER ---------
-  async getProfile() {
-    return this.request("/api/user/profile", {
-      method: "GET",
-    });
-  }
-
-  async updateProfile(payload) {
-    return this.request("/api/user/profile", {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
-  }
-}
-
-export default new ApiService();
+export default api;

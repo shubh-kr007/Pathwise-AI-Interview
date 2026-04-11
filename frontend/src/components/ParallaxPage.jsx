@@ -35,10 +35,11 @@ export default function CareerLanding() {
       >
         <div className="pointer-events-none absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-black via-black/200 to-transparent z-20"></div>
         <div className="pointer-events-none absolute bottom-0 left-0 w-full h-40 bg-gradient-to-b from-black via-black/70 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-radial from-white/5 via-transparent to-transparent"></div>
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-fuchsia-600/25 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 -right-40 w-96 h-96 bg-cyan-600/25 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+
+        {/* Enhanced Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-500 opacity-20 blur-[100px]"></div>
+        <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-cyan-500 opacity-20 blur-[100px]"></div>
 
         <motion.div
           className="relative z-30 grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl w-full"
@@ -61,7 +62,7 @@ export default function CareerLanding() {
   );
 }
 
-// 🪄 Feature Card Component
+// 🪄 Feature Card Component (Preserved as requested)
 const Card = ({ feature, navigate }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -90,7 +91,7 @@ const Card = ({ feature, navigate }) => {
           background: `radial-gradient(400px at ${mousePosition.x}px ${mousePosition.y}px, rgba(204, 51, 255, 0.15), transparent 80%)`,
         }}
       />
-      
+
       <div className="relative z-10">
         <motion.div
           whileHover={{ scale: 1.1, rotate: 5 }}
@@ -111,13 +112,13 @@ const Card = ({ feature, navigate }) => {
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
         </motion.div>
       </div>
-      
+
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-cyan-400 group-hover:w-full transition-all duration-500 ease-out"></div>
     </motion.div>
   );
 };
 
-// 🆕 How It Works Section
+// 🆕 How It Works Section (Upgraded)
 const HowItWorksSection = () => {
   const ref = React.useRef(null);
   const inView = useInView(ref, { once: false, amount: 0.2 });
@@ -128,31 +129,41 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section ref={ref} className="px-6 py-24 bg-black relative overflow-hidden">
-      <div className="max-w-6xl mx-auto text-center">
-        <motion.h2 initial={{opacity: 0, y: 40}} animate={inView ? {opacity: 1, y: 0} : {opacity: 0, y: 40}} transition={{duration: 0.7}} className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-            A Smarter Way to Prepare
+    <section ref={ref} className="px-6 py-32 bg-black relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto text-center relative z-10">
+        <motion.h2 initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} transition={{ duration: 0.7 }} className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+          A Smarter Way to Prepare
         </motion.h2>
-        <motion.p initial={{opacity: 0, y: 40}} animate={inView ? {opacity: 1, y: 0} : {opacity: 0, y: 40}} transition={{duration: 0.7, delay: 0.1}} className="text-gray-400 max-w-2xl mx-auto mb-16">
-            Follow three simple steps to transform your job readiness.
+        <motion.p initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-gray-400 max-w-2xl mx-auto mb-20 text-lg">
+          Follow three simple steps to transform your job readiness.
         </motion.p>
-      </div>
-      
-      <div className="max-w-6xl mx-auto">
-        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10">
+
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* Connecting Line (Desktop) */}
+          <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-gray-700 to-transparent z-0" />
+
           {steps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{opacity: 0, y: 50}}
-              animate={inView ? {opacity: 1, y: 0} : {opacity: 0, y: 50}}
-              transition={{duration: 0.5, delay: index * 0.2}}
-              className="p-8 border border-white/10 rounded-2xl bg-gray-900/50 z-10 text-center"
+              initial={{ opacity: 0, y: 50 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
+              className="relative z-10 flex flex-col items-center"
             >
-              <div className="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-gradient-to-br from-fuchsia-500 to-cyan-400 text-white mx-auto shadow-lg shadow-fuchsia-500/40">
-                <step.icon size={28} />
+              <div className="relative flex items-center justify-center w-24 h-24 mb-8 rounded-2xl bg-gray-900 border border-white/10 shadow-xl shadow-violet-500/10 group hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <step.icon size={32} className="text-white relative z-10" />
+                {/* Step Number Badge */}
+                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gray-800 border border-white/10 flex items-center justify-center text-sm font-bold text-gray-400">
+                  {index + 1}
+                </div>
               </div>
-              <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{step.description}</p>
+
+              <h3 className="text-xl font-bold mb-3 text-white">{step.title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">{step.description}</p>
             </motion.div>
           ))}
         </div>
@@ -161,35 +172,54 @@ const HowItWorksSection = () => {
   );
 };
 
-// 🆕 Final CTA Section
+// 🆕 Final CTA Section (Upgraded)
 const CTASection = ({ navigate }) => {
   const ref = React.useRef(null);
   const inView = useInView(ref, { once: false, amount: 0.5 });
 
   return (
-    <section ref={ref} className="py-24 px-6 bg-black">
+    <section ref={ref} className="py-32 px-6 bg-black relative">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] mask-image-gradient-to-b from-black via-transparent to-transparent"></div>
+
       <motion.div
-        className="relative max-w-4xl mx-auto text-center bg-gray-900/50 border border-white/10 rounded-2xl p-10 md:p-16 overflow-hidden"
+        className="relative max-w-5xl mx-auto text-center bg-gradient-to-b from-gray-900 to-black border border-white/10 rounded-[2.5rem] p-12 md:p-20 overflow-hidden shadow-2xl"
         initial={{ opacity: 0, y: 50 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-fuchsia-600/40 to-transparent blur-3xl rounded-full animate-pulse"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.15),transparent_70%)] pointer-events-none" />
 
-        <div className="relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Ready to Secure Your Dream Job?</h2>
-          <p className="text-gray-300 max-w-xl mx-auto mb-8">
-            Stop guessing and start preparing with data-driven insights. Your next career move is just a click away.
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-violet-300 mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+            </span>
+            Start your journey today
+          </div>
+
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-white">
+            Ready to Secure Your <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Dream Job?</span>
+          </h2>
+
+          <p className="text-gray-400 max-w-xl mx-auto mb-10 text-lg leading-relaxed">
+            Stop guessing and start preparing with data-driven insights. Join thousands of candidates who are acing their interviews.
           </p>
+
           <motion.button
             onClick={() => navigate('/interview')}
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 30px rgba(0, 255, 255, 0.4)"}}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{type: "spring", stiffness: 200, damping: 15}}
-            className="relative group px-8 py-4 bg-gradient-to-r from-fuchsia-600 to-cyan-500 rounded-full font-semibold shadow-lg overflow-hidden"
+            className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 overflow-hidden"
           >
-            <span className="absolute inset-0 block w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></span>
-            <span className="relative">Get Started for Free</span>
+            <span className="relative z-10 flex items-center gap-2">
+              Get Started for Free
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-200 to-fuchsia-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </motion.button>
         </div>
       </motion.div>

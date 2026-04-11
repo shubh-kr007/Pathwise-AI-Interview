@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import {
   BarChart,
@@ -13,68 +13,118 @@ import {
   TrendingUp,
   AlertCircle,
   Upload,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from "lucide-react";
 import {
   LineChart,
   Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
+  Legend,
 } from "recharts";
-import { API_BASE } from "../config/api";  // ✅ NEW IMPORT
+import { API_BASE } from "../config/api";
+import api from "../utils/api";
 
 // --- Data helpers ---
-function loadAttempts() {
+function loadAttempts(userId) {
   try {
-    const raw = localStorage.getItem("interview_attempts_v1");
-    const arr = raw ? JSON.parse(raw) : [];
+    // Only use user-specific key - no fallback to avoid conflicts
+    const userKey = userId ? `interview_attempts_${userId}` : null;
+    if (!userKey) return [];
+    
+    const raw = localStorage.getItem(userKey);
+    if (!raw) return [];
+    
+    const arr = JSON.parse(raw);
     const list = Array.isArray(arr) ? arr : [];
+    
+    // Deduplicate based on unique timestamp and type
     const seen = new Set();
     const deduped = [];
     for (const a of list) {
-      const key = `${a.type}|${a.mode}|${Math.round((a.timestamp || 0)/1000)}`;
+      // Use timestamp if available, otherwise use id
+      const timestamp = a.timestamp || a.id || Date.now();
+      const key = `${a.type || a.mode || 'unknown'}|${timestamp}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      deduped.push(a);
+      deduped.push({
+        ...a,
+        timestamp: timestamp, // Ensure timestamp exists
+      });
     }
-    return deduped;
-  } catch {
+    // Sort by timestamp descending (newest first)
+    return deduped.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  } catch (error) {
+    console.error('Error loading attempts:', error);
     return [];
   }
 }
 
 function aggregateByType(attempts) {
-  const types = ["technical", "behavioral", "system-design"];
+  const types = ["mcq", "coding", "quiz"];
+  const typeLabels = {
+    "mcq": "MCQ Test",
+    "coding": "Coding Test",
+    "quiz": "Technical Quiz",
+  };
   const agg = Object.fromEntries(types.map((t) => [t, { count: 0, scores: [] }]));
   attempts.forEach((a) => {
-    if (!agg[a.type]) return;
-    agg[a.type].count += 1;
-    if (typeof a.scorePercent === "number") agg[a.type].scores.push(a.scorePercent);
+    const type = a.type || a.mode;
+    if (!agg[type]) {
+      // If type doesn't exist, create it dynamically
+      if (!agg[type]) {
+        agg[type] = { count: 0, scores: [] };
+      }
+    }
+    if (agg[type]) {
+      agg[type].count += 1;
+      if (typeof a.scorePercent === "number") agg[type].scores.push(a.scorePercent);
+    }
   });
-  const typeAverages = types.map((t) => {
-    const item = agg[t];
-    const avg = item.scores.length
-      ? Math.round(item.scores.reduce((s, v) => s + v, 0) / item.scores.length)
-      : 0;
-    const label = t === "system-design" ? "System Design" : t.charAt(0).toUpperCase() + t.slice(1);
-    return { type: t, label, average: avg, attempts: item.count };
-  });
-  return typeAverages;
+  const typeAverages = Object.entries(agg)
+    .filter(([_, item]) => item.count > 0)
+    .map(([t, item]) => {
+      const avg = item.scores.length
+        ? Math.round(item.scores.reduce((s, v) => s + v, 0) / item.scores.length)
+        : 0;
+      const label = typeLabels[t] || (t.charAt(0).toUpperCase() + t.slice(1));
+      return { type: t, label, average: avg, attempts: item.count };
+    });
+  return typeAverages.length > 0 ? typeAverages : types.map(t => ({
+    type: t,
+    label: typeLabels[t] || t,
+    average: 0,
+    attempts: 0
+  }));
 }
 
 function recentFromAttempts(attempts) {
   const last = [...attempts]
-    .sort((a, b) => b.timestamp - a.timestamp)
+    .sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0))
     .slice(0, 5)
-    .map((a, i) => ({
-      id: i + 1,
-      type: a.type === "system-design" ? "System Design" : a.type.charAt(0).toUpperCase() + a.type.slice(1),
-      date: new Date(a.timestamp).toLocaleString(),
-      score: typeof a.scorePercent === "number" ? a.scorePercent : "—",
-    }));
+    .map((a, i) => {
+      const timestamp = a.timestamp || a.id || Date.now();
+      const typeMap = {
+        "mcq": "MCQ Test",
+        "coding": "Coding Test",
+        "quiz": "Technical Quiz",
+        "system-design": "System Design",
+      };
+      const typeLabel = typeMap[a.type] || typeMap[a.mode] || (a.type ? a.type.charAt(0).toUpperCase() + a.type.slice(1) : "Interview");
+      return {
+        id: i + 1,
+        type: typeLabel,
+        date: new Date(timestamp).toLocaleString(),
+        score: typeof a.scorePercent === "number" ? a.scorePercent : "—",
+      };
+    });
   return last;
 }
 
@@ -124,10 +174,10 @@ const ResumeUploadSection = () => {
 
   const handleUpload = async () => {
     if (!file) return;
-    
+
     const formData = new FormData();
     formData.append('resume', file);
-    
+
     try {
       setUploading(true);
       const token = localStorage.getItem('token');
@@ -136,10 +186,10 @@ const ResumeUploadSection = () => {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      
+
       if (response.ok) {
         alert('✅ Resume analyzed successfully! Reloading dashboard...');
-        window.location.reload(); 
+        window.location.reload();
       } else {
         const err = await response.json();
         alert(`❌ Analysis failed: ${err.message}`);
@@ -162,7 +212,7 @@ const ResumeUploadSection = () => {
           <p className="text-sm text-gray-400">Get AI-powered insights instantly.</p>
         </div>
       </div>
-      
+
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
         <input
           type="file"
@@ -186,24 +236,37 @@ export default function Dashboard() {
   const { user, refreshUserData } = useAuth();
   const userName = user?.name || "there";
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [attempts, setAttempts] = useState(() => loadAttempts());
+  const userId = user?.id || user?._id || 'default';
+  const [attempts, setAttempts] = useState(() => loadAttempts(userId));
   const [resumeAnalyzed, setResumeAnalyzed] = useState(false);
   const [resumeScore, setResumeScore] = useState(null);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load data on mount
+  // Function to reload attempts
+  const reloadAttempts = useCallback(() => {
+    const currentUserId = user?.id || user?._id || 'default';
+    const loadedAttempts = loadAttempts(currentUserId);
+    setAttempts(loadedAttempts);
+    console.log('Attempts reloaded:', loadedAttempts.length, 'attempts found');
+  }, [user]);
+
+  // Load data on mount and when userId changes - use only localStorage
   useEffect(() => {
     const loadData = async () => {
-      setAttempts(loadAttempts());
-      
+      // Only load from localStorage - single source of truth (user-specific key only)
+      const loadedAttempts = loadAttempts(userId);
+      setAttempts(loadedAttempts);
+      console.log('Dashboard loaded attempts:', loadedAttempts.length);
+
       // Check resume status
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE}/api/resume/status`, {   // ✅ USE API_BASE
+        const response = await fetch(`${API_BASE}/api/resume/status`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setResumeAnalyzed(data.analyzed || false);
@@ -212,25 +275,63 @@ export default function Dashboard() {
       } catch (err) {
         console.error("Error checking resume status:", err);
       }
-      
+
       setHydrated(true);
     };
 
     loadData();
 
     const onStorage = (e) => {
-      if (e.key === 'interview_attempts_v1') setAttempts(loadAttempts());
+      // Only listen for user-specific key changes
+      const currentUserId = user?.id || user?._id || 'default';
+      const userKey = `interview_attempts_${currentUserId}`;
+      if (e.key === userKey) {
+        console.log('Storage event detected for user key');
+        setAttempts(loadAttempts(currentUserId));
+      }
     };
-    const onUpdated = () => setAttempts(loadAttempts());
     
+    const onUpdated = () => {
+      console.log('Attempts updated event received');
+      reloadAttempts();
+    };
+
+    const onLocalStorageChange = (e) => {
+      const currentUserId = user?.id || user?._id || 'default';
+      const userKey = `interview_attempts_${currentUserId}`;
+      if (e.detail?.key === userKey) {
+        console.log('Local storage change detected');
+        setAttempts(loadAttempts(currentUserId));
+      }
+    };
+
+    // Also listen for focus event to refresh when user comes back to the tab
+    const onFocus = () => {
+      reloadAttempts();
+    };
+
     window.addEventListener('storage', onStorage);
     window.addEventListener('attempts-updated', onUpdated);
-    
+    window.addEventListener('local-storage-change', onLocalStorageChange);
+    window.addEventListener('focus', onFocus);
+
     return () => {
       window.removeEventListener('storage', onStorage);
       window.removeEventListener('attempts-updated', onUpdated);
+      window.removeEventListener('local-storage-change', onLocalStorageChange);
+      window.removeEventListener('focus', onFocus);
     };
-  }, []);
+  }, [userId, user, reloadAttempts]);
+
+  // Reload attempts when location changes (user navigates to dashboard)
+  useEffect(() => {
+    if (location.pathname === '/dashboard' && hydrated) {
+      // Small delay to ensure localStorage is updated
+      setTimeout(() => {
+        reloadAttempts();
+      }, 100);
+    }
+  }, [location.pathname, hydrated, reloadAttempts]);
 
   // Refresh user data periodically
   useEffect(() => {
@@ -242,16 +343,40 @@ export default function Dashboard() {
   const typeAgg = aggregateByType(attempts);
   const recentInterviews = recentFromAttempts(attempts);
   const overallScores = attempts.filter(a => typeof a.scorePercent === 'number').map(a => a.scorePercent);
-  const overallAverage = overallScores.length ? Math.round(overallScores.reduce((s,v)=>s+v,0)/overallScores.length) : 0;
+  const overallAverage = overallScores.length ? Math.round(overallScores.reduce((s, v) => s + v, 0) / overallScores.length) : 0;
   const totalInterviews = attempts.length;
 
-  // Performance data
-  const lastScores = overallScores.slice(-8);
-  const startIndex = overallScores.length - lastScores.length;
-  const performanceData = lastScores.map((score, idx) => ({ 
-    name: `Attempt ${startIndex + idx + 1}`, 
-    score 
-  }));
+  // Enhanced Performance data with dates and better formatting
+  const attemptsWithScores = attempts
+    .filter(a => typeof a.scorePercent === 'number')
+    .sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0)) // Sort descending (newest first)
+    .slice(0, 10) // Show last 10 attempts
+    .reverse(); // Reverse to show oldest to newest on graph
+
+  const performanceData = attemptsWithScores.map((attempt, idx) => {
+    const timestamp = attempt.timestamp || attempt.id || Date.now();
+    const date = new Date(timestamp);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return {
+      name: dateStr,
+      fullDate: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      score: attempt.scorePercent,
+      attempt: idx + 1,
+      type: attempt.type || attempt.mode || 'mcq'
+    };
+  });
+
+  // Calculate trend (improving or declining)
+  const recentScores = performanceData.slice(-5).map(d => d.score);
+  const earlierScores = performanceData.slice(0, 5).map(d => d.score);
+  const recentAvg = recentScores.length ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length : 0;
+  const earlierAvg = earlierScores.length ? earlierScores.reduce((a, b) => a + b, 0) / earlierScores.length : 0;
+  const isImproving = recentAvg > earlierAvg;
+  const trendPercentage = earlierAvg > 0 ? Math.round(((recentAvg - earlierAvg) / earlierAvg) * 100) : 0;
+
+  // Best and worst scores
+  const bestScore = performanceData.length > 0 ? Math.max(...performanceData.map(d => d.score)) : 0;
+  const worstScore = performanceData.length > 0 ? Math.min(...performanceData.map(d => d.score)) : 0;
 
   // Check if user is truly new (no resume, no interviews)
   const isNewUser = !resumeAnalyzed && totalInterviews === 0;
@@ -270,16 +395,28 @@ export default function Dashboard() {
           variants={containerVariants}
         >
           {/* Header */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold">
-              Welcome back, {userName}!
-            </h1>
-            <p className="text-gray-400 mt-1">
-              {isNewUser 
-                ? "Let's get started with your interview preparation journey."
-                : "Here's your progress overview."
-              }
-            </p>
+          <motion.div variants={itemVariants} className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold">
+                Welcome back, {userName}!
+              </h1>
+              <p className="text-gray-400 mt-1">
+                {isNewUser
+                  ? "Let's get started with your interview preparation journey."
+                  : "Here's your progress overview."
+                }
+              </p>
+            </div>
+            <motion.button
+              onClick={reloadAttempts}
+              whileHover={{ scale: 1.05, rotate: 180 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-gray-700 hover:border-gray-600 rounded-xl transition-all flex-shrink-0"
+              title="Refresh dashboard data"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Refresh</span>
+            </motion.button>
           </motion.div>
 
           {/* ✅ New User Onboarding */}
@@ -352,11 +489,10 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="text-center">
-                      <div className={`text-4xl font-bold ${
-                        resumeScore >= 80 ? 'text-green-400' : 
-                        resumeScore >= 60 ? 'text-yellow-400' : 
-                        'text-red-400'
-                      }`}>
+                      <div className={`text-4xl font-bold ${resumeScore >= 80 ? 'text-green-400' :
+                        resumeScore >= 60 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
                         {resumeScore}
                       </div>
                       <div className="text-xs text-gray-400 mt-1">Score</div>
@@ -377,40 +513,178 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column */}
             <div className="lg:col-span-2 flex flex-col gap-6">
-              {/* Performance Chart */}
+              {/* Enhanced Performance Chart */}
               {hasInterviews ? (
-                <DashboardCard>
-                  <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <TrendingUp className="mr-3 h-5 w-5 text-purple-400" />
-                    Performance Overview
-                  </h2>
-                  <div className="h-72 w-full">
+                <DashboardCard className="bg-gradient-to-br from-gray-900/50 to-gray-800/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <TrendingUp className={`h-6 w-6 ${isImproving ? 'text-green-400' : 'text-red-400'}`} />
+                        Performance Overview
+                      </h2>
+                      <p className="text-sm text-gray-400">
+                        Track your interview performance over time
+                      </p>
+                    </div>
+                    {/* Trend Indicator */}
+                    {performanceData.length >= 5 && (
+                      <div className="mt-4 sm:mt-0 flex items-center gap-4">
+                        <div className={`px-4 py-2 rounded-lg ${isImproving ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'}`}>
+                          <div className="text-xs text-gray-400 mb-1">Trend</div>
+                          <div className={`font-bold ${isImproving ? 'text-green-400' : 'text-red-400'}`}>
+                            {isImproving ? '↑' : '↓'} {Math.abs(trendPercentage)}%
+                          </div>
+                        </div>
+                        <div className="px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30">
+                          <div className="text-xs text-gray-400 mb-1">Average</div>
+                          <div className="font-bold text-blue-400">{overallAverage}%</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stats Cards */}
+                  {performanceData.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="text-xs text-gray-400 mb-1">Best Score</div>
+                        <div className="text-xl font-bold text-green-400">{bestScore}%</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="text-xs text-gray-400 mb-1">Average</div>
+                        <div className="text-xl font-bold text-blue-400">{overallAverage}%</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="text-xs text-gray-400 mb-1">Total Attempts</div>
+                        <div className="text-xl font-bold text-purple-400">{totalInterviews}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
+                      <AreaChart
                         data={performanceData}
-                        margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                        <XAxis dataKey="name" stroke="#9ca3af" />
-                        <YAxis stroke="#9ca3af" />
+                        <defs>
+                          <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorAverage" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.5}/>
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                          strokeDasharray="3 3" 
+                          stroke="#374151" 
+                          opacity={0.3}
+                        />
+                        <XAxis 
+                          dataKey="name" 
+                          stroke="#9ca3af"
+                          tick={{ fill: '#9ca3af', fontSize: 12 }}
+                          axisLine={{ stroke: '#4b5563' }}
+                        />
+                        <YAxis 
+                          stroke="#9ca3af"
+                          domain={[0, 100]}
+                          tick={{ fill: '#9ca3af', fontSize: 12 }}
+                          axisLine={{ stroke: '#4b5563' }}
+                          label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
+                        />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: "rgba(31, 41, 55, 0.8)",
-                            borderColor: "#4b5563",
-                            backdropFilter: "blur(4px)",
+                            backgroundColor: "rgba(17, 24, 39, 0.95)",
+                            border: "1px solid rgba(75, 85, 99, 0.5)",
+                            borderRadius: "8px",
+                            backdropFilter: "blur(8px)",
+                            padding: "12px",
+                          }}
+                          labelStyle={{ color: '#e5e7eb', marginBottom: '8px', fontWeight: 'bold' }}
+                          itemStyle={{ color: '#a78bfa', padding: '4px 0' }}
+                          formatter={(value, name) => {
+                            if (name === 'score') return [`${value}%`, 'Score'];
+                            if (name === 'average') return [`${value}%`, 'Average'];
+                            return [value, name];
+                          }}
+                          labelFormatter={(label, payload) => {
+                            if (payload && payload[0]) {
+                              return payload[0].payload.fullDate || label;
+                            }
+                            return label;
                           }}
                         />
-                        <Line
+                        {/* Average Reference Line */}
+                        <ReferenceLine 
+                          y={overallAverage} 
+                          stroke="#3b82f6" 
+                          strokeDasharray="5 5"
+                          strokeWidth={2}
+                          label={{ value: `Avg: ${overallAverage}%`, position: "right", fill: "#3b82f6", fontSize: 12 }}
+                        />
+                        {/* Area under the curve */}
+                        <Area
                           type="monotone"
                           dataKey="score"
-                          stroke="#a78bfa"
-                          strokeWidth={2}
-                          dot={{ r: 4, fill: "#8b5cf6" }}
-                          activeDot={{ r: 8 }}
+                          stroke="#8b5cf6"
+                          strokeWidth={3}
+                          fill="url(#colorScore)"
+                          dot={{ r: 5, fill: "#8b5cf6", strokeWidth: 2, stroke: "#fff" }}
+                          activeDot={{ r: 8, fill: "#a78bfa", strokeWidth: 2, stroke: "#fff" }}
                         />
-                      </LineChart>
+                        {/* Average line */}
+                        <Line
+                          type="monotone"
+                          dataKey={() => overallAverage}
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={false}
+                          legendType="line"
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
                   </div>
+
+                  {/* Performance Insights */}
+                  {performanceData.length >= 3 && (
+                    <div className="mt-6 pt-6 border-t border-gray-700">
+                      <h3 className="text-sm font-semibold text-gray-400 mb-3">Performance Insights</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-gray-400">Improvement Rate</span>
+                            <span className={`text-sm font-bold ${isImproving ? 'text-green-400' : 'text-red-400'}`}>
+                              {isImproving ? '+' : ''}{trendPercentage}%
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${isImproving ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-rose-500'}`}
+                              style={{ width: `${Math.min(100, Math.abs(trendPercentage))}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-gray-400">Score Range</span>
+                            <span className="text-sm font-bold text-blue-400">
+                              {worstScore}% - {bestScore}%
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                              style={{ width: `${((bestScore - worstScore) / 100) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </DashboardCard>
               ) : (
                 <DashboardCard>
@@ -526,8 +800,8 @@ export default function Dashboard() {
                           <span className="text-sm font-bold">{Math.min(100, Math.round((overallAverage * 1.1)))}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-purple-500 to-blue-500" 
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                             style={{ width: `${Math.min(100, Math.round((overallAverage * 1.1)))}%` }}
                           ></div>
                         </div>
@@ -538,8 +812,8 @@ export default function Dashboard() {
                           <span className="text-sm font-bold">{Math.min(100, Math.round((overallAverage * 0.9)))}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500" 
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
                             style={{ width: `${Math.min(100, Math.round((overallAverage * 0.9)))}%` }}
                           ></div>
                         </div>
@@ -550,8 +824,8 @@ export default function Dashboard() {
                           <span className="text-sm font-bold">{Math.min(100, Math.round((overallAverage * 1.05)))}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-cyan-500 to-purple-500" 
+                          <div
+                            className="h-full bg-gradient-to-r from-cyan-500 to-purple-500"
                             style={{ width: `${Math.min(100, Math.round((overallAverage * 1.05)))}%` }}
                           ></div>
                         </div>
@@ -579,7 +853,7 @@ export default function Dashboard() {
                 <h3 className="font-bold mb-1">Practice Interview</h3>
                 <p className="text-sm text-gray-400">Start a new mock interview session</p>
               </button>
-              
+
               <button
                 onClick={() => navigate('/resume-analyzer')}
                 className="p-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl hover:border-green-500/40 transition-all text-left group"
@@ -588,7 +862,7 @@ export default function Dashboard() {
                 <h3 className="font-bold mb-1">Full Resume Analysis</h3>
                 <p className="text-sm text-gray-400">Detailed report & feedback</p>
               </button>
-              
+
               <button
                 onClick={() => navigate('/personalized-roadmap')}
                 className="p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl hover:border-purple-500/40 transition-all text-left group"

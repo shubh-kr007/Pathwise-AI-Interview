@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import LightRays from "./LightRays"; // ✅ Import LightRays
+
 
 // Animation variants for the main container
 const containerVariants = {
@@ -47,19 +47,8 @@ export default function HeroSection() {
 
   return (
     <section className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black px-4">
-      {/* 🔆 LightRays Background */}
+      {/* 🔆 LightRays Background - Removed */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#00ffff"
-          raysSpeed={1.5}
-          lightSpread={0.8}
-          rayLength={1.2}
-          followMouse={true}
-          mouseInfluence={0.1}
-          noiseAmount={0.1}
-          distortion={0.05}
-        />
       </div>
 
       {/* ✨ Foreground Content */}
@@ -107,7 +96,7 @@ export default function HeroSection() {
             className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl text-lg font-semibold shadow-lg transition cursor-pointer w-full sm:w-auto"
             onClick={handleGetStarted}
           >
-           Get Started
+            Get Started
           </motion.button>
 
           <motion.button
