@@ -12,19 +12,11 @@ export function useResumeAnalyzer(user) {
   useEffect(() => {
     const checkExistingAnalysis = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await fetch(`${API_BASE}/api/resume/status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.analyzed && data.data) {
-            setHasExistingAnalysis(true);
-            setAnalysis(data.data);
-          }
+        const { default: api } = await import("../utils/api");
+        const data = await api.getResumeStatus();
+        if (data.analyzed && data.data) {
+          setHasExistingAnalysis(true);
+          setAnalysis(data.data);
         }
       } catch (err) {
         console.error("Error checking resume status:", err);
@@ -38,6 +30,15 @@ export function useResumeAnalyzer(user) {
 
   const handleFileChange = (selectedFile) => {
     if (selectedFile) {
+      const allowedExtensions = ["pdf", "doc", "docx"];
+      const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        setError("Invalid format. Please upload a structured Resume (PDF, DOC, DOCX) only.");
+        setFile(null);
+        return;
+      }
+      
       setFile(selectedFile);
       setError("");
     }
@@ -56,26 +57,14 @@ export function useResumeAnalyzer(user) {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE}/api/resume/analyze`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Analysis failed");
-      }
-
-      const data = await response.json();
+      const { default: api } = await import("../utils/api");
+      const data = await api.analyzeResume(formData);
+      
       setAnalysis(data.analysis);
       setHasExistingAnalysis(true);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to analyze resume. Please try again.");
+      setError(err.response?.data?.message || err.message || "Failed to analyze resume. Please try again.");
     } finally {
       setLoading(false);
     }

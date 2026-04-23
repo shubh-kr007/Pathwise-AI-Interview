@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/AuthLayout";
-import { API_BASE } from "../config/api";  // ✅ Use this
+import AuthLoadingOverlay from "../components/AuthLoadingOverlay";
+import { API_BASE } from "../config/api";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function AuthPage() {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
 
   const { login } = useAuth();
 
@@ -45,12 +47,12 @@ export default function AuthPage() {
 
       login(data.token, data.user);
       localStorage.setItem("justLoggedIn", "true");
-      setMessage(
-        isLogin
-          ? "✅ Login successful! Redirecting..."
-          : "✅ Signup successful! Welcome! Redirecting..."
-      );
-      navigate("/");
+      setShowLoadingOverlay(true);
+      
+      // Artificial delay to show the beautiful loading screen
+      setTimeout(() => {
+        navigate("/");
+      }, 2500);
     } catch (err) {
       console.error("Auth error:", err);
       setMessage("❌ Server error. Please try again later.");
@@ -72,8 +74,10 @@ export default function AuthPage() {
       if (res.ok && data.token) {
         login(data.token, data.user);
         localStorage.setItem("justLoggedIn", "true");
-        setMessage("✅ Google login successful! Redirecting...");
-        navigate("/");
+        setShowLoadingOverlay(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 2500);
       } else {
         setMessage(data.message || "❌ Google login failed");
       }
@@ -86,21 +90,24 @@ export default function AuthPage() {
   const handleGoogleError = () => setMessage("❌ Google Login Failed");
 
   return (
-    <AuthLayout
-      isLogin={isLogin}
-      form={form}
-      showPassword={showPassword}
-      message={message}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      setShowPassword={setShowPassword}
-      toggleAuthMode={() => {
-        setIsLogin(!isLogin);
-        setMessage("");
-      }}
-      onGoogleSuccess={handleGoogleSuccess}
-      onGoogleError={handleGoogleError}
-      isLoading={isLoading}
-    />
+    <>
+      <AuthLoadingOverlay isVisible={showLoadingOverlay} />
+      <AuthLayout
+        isLogin={isLogin}
+        form={form}
+        showPassword={showPassword}
+        message={message}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        setShowPassword={setShowPassword}
+        toggleAuthMode={() => {
+          setIsLogin(!isLogin);
+          setMessage("");
+        }}
+        onGoogleSuccess={handleGoogleSuccess}
+        onGoogleError={handleGoogleError}
+        isLoading={isLoading}
+      />
+    </>
   );
 }

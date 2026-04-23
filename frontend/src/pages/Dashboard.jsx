@@ -33,36 +33,12 @@ import { API_BASE } from "../config/api";
 import api from "../utils/api";
 
 // --- Data helpers ---
-function loadAttempts(userId) {
+async function fetchAttempts() {
   try {
-    // Only use user-specific key - no fallback to avoid conflicts
-    const userKey = userId ? `interview_attempts_${userId}` : null;
-    if (!userKey) return [];
-    
-    const raw = localStorage.getItem(userKey);
-    if (!raw) return [];
-    
-    const arr = JSON.parse(raw);
-    const list = Array.isArray(arr) ? arr : [];
-    
-    // Deduplicate based on unique timestamp and type
-    const seen = new Set();
-    const deduped = [];
-    for (const a of list) {
-      // Use timestamp if available, otherwise use id
-      const timestamp = a.timestamp || a.id || Date.now();
-      const key = `${a.type || a.mode || 'unknown'}|${timestamp}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      deduped.push({
-        ...a,
-        timestamp: timestamp, // Ensure timestamp exists
-      });
-    }
-    // Sort by timestamp descending (newest first)
-    return deduped.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    const attempts = await api.getAttempts();
+    return Array.isArray(attempts) ? attempts : [];
   } catch (error) {
-    console.error('Error loading attempts:', error);
+    console.error('Error fetching attempts:', error);
     return [];
   }
 }
@@ -70,9 +46,11 @@ function loadAttempts(userId) {
 function aggregateByType(attempts) {
   const types = ["mcq", "coding", "quiz"];
   const typeLabels = {
-    "mcq": "MCQ Test",
-    "coding": "Coding Test",
-    "quiz": "Technical Quiz",
+    "data-analyst": "Data Analyst",
+    "full-stack": "Full Stack Dev",
+    "java-dev": "Java Developer",
+    "dsa": "DSA Round",
+    "mcq": "General MCQ"
   };
   const agg = Object.fromEntries(types.map((t) => [t, { count: 0, scores: [] }]));
   attempts.forEach((a) => {
@@ -112,10 +90,10 @@ function recentFromAttempts(attempts) {
     .map((a, i) => {
       const timestamp = a.timestamp || a.id || Date.now();
       const typeMap = {
-        "mcq": "MCQ Test",
-        "coding": "Coding Test",
-        "quiz": "Technical Quiz",
-        "system-design": "System Design",
+        "data-analyst": "Data Analyst",
+        "full-stack": "Full Stack Dev",
+        "java-dev": "Java Developer",
+        "dsa": "DSA Round",
       };
       const typeLabel = typeMap[a.type] || typeMap[a.mode] || (a.type ? a.type.charAt(0).toUpperCase() + a.type.slice(1) : "Interview");
       return {
@@ -239,24 +217,23 @@ export default function Dashboard() {
   const location = useLocation();
 
   const userId = user?.id || user?._id || 'default';
-  const [attempts, setAttempts] = useState(() => loadAttempts(userId));
+  const [attempts, setAttempts] = useState([]);
   const [resumeAnalyzed, setResumeAnalyzed] = useState(false);
   const [resumeScore, setResumeScore] = useState(null);
   const [hydrated, setHydrated] = useState(false);
 
   // Function to reload attempts
-  const reloadAttempts = useCallback(() => {
-    const currentUserId = user?.id || user?._id || 'default';
-    const loadedAttempts = loadAttempts(currentUserId);
+  const reloadAttempts = useCallback(async () => {
+    const loadedAttempts = await fetchAttempts();
     setAttempts(loadedAttempts);
     console.log('Attempts reloaded:', loadedAttempts.length, 'attempts found');
-  }, [user]);
+  }, []);
 
   // Load data on mount and when userId changes - use only localStorage
   useEffect(() => {
     const loadData = async () => {
-      // Only load from localStorage - single source of truth (user-specific key only)
-      const loadedAttempts = loadAttempts(userId);
+      // Fetch from backend
+      const loadedAttempts = await fetchAttempts();
       setAttempts(loadedAttempts);
       console.log('Dashboard loaded attempts:', loadedAttempts.length);
 
@@ -281,13 +258,12 @@ export default function Dashboard() {
 
     loadData();
 
-    const onStorage = (e) => {
-      // Only listen for user-specific key changes
-      const currentUserId = user?.id || user?._id || 'default';
-      const userKey = `interview_attempts_${currentUserId}`;
-      if (e.key === userKey) {
-        console.log('Storage event detected for user key');
-        setAttempts(loadAttempts(currentUserId));
+    const onStorage = async (e) => {
+      // Only listen for relevant changes
+      if (e.key === 'token') {
+        console.log('Storage event detected for token');
+        const loadedAttempts = await fetchAttempts();
+        setAttempts(loadedAttempts);
       }
     };
     
@@ -296,12 +272,11 @@ export default function Dashboard() {
       reloadAttempts();
     };
 
-    const onLocalStorageChange = (e) => {
-      const currentUserId = user?.id || user?._id || 'default';
-      const userKey = `interview_attempts_${currentUserId}`;
-      if (e.detail?.key === userKey) {
+    const onLocalStorageChange = async (e) => {
+      if (e.detail?.key === 'token') {
         console.log('Local storage change detected');
-        setAttempts(loadAttempts(currentUserId));
+        const loadedAttempts = await fetchAttempts();
+        setAttempts(loadedAttempts);
       }
     };
 
@@ -326,10 +301,7 @@ export default function Dashboard() {
   // Reload attempts when location changes (user navigates to dashboard)
   useEffect(() => {
     if (location.pathname === '/dashboard' && hydrated) {
-      // Small delay to ensure localStorage is updated
-      setTimeout(() => {
-        reloadAttempts();
-      }, 100);
+      reloadAttempts();
     }
   }, [location.pathname, hydrated, reloadAttempts]);
 
@@ -358,8 +330,9 @@ export default function Dashboard() {
     const date = new Date(timestamp);
     const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     return {
-      name: dateStr,
-      fullDate: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      name: `T-${idx + 1}`,
+      attemptName: `Test ${idx + 1}`,
+      fullDate: `${dateStr}, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
       score: attempt.scorePercent,
       attempt: idx + 1,
       type: attempt.type || attempt.mode || 'mcq'
@@ -407,16 +380,6 @@ export default function Dashboard() {
                 }
               </p>
             </div>
-            <motion.button
-              onClick={reloadAttempts}
-              whileHover={{ scale: 1.05, rotate: 180 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-gray-700 hover:border-gray-600 rounded-xl transition-all flex-shrink-0"
-              title="Refresh dashboard data"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">Refresh</span>
-            </motion.button>
           </motion.div>
 
           {/* ✅ New User Onboarding */}
@@ -583,10 +546,11 @@ export default function Dashboard() {
                           opacity={0.3}
                         />
                         <XAxis 
-                          dataKey="name" 
-                          stroke="#9ca3af"
-                          tick={{ fill: '#9ca3af', fontSize: 12 }}
-                          axisLine={{ stroke: '#4b5563' }}
+                          dataKey="attemptName" 
+                          stroke="#4b5563"
+                          tick={{ fill: '#9ca3af', fontSize: 10 }}
+                          axisLine={false}
+                          tickLine={false}
                         />
                         <YAxis 
                           stroke="#9ca3af"
@@ -605,10 +569,12 @@ export default function Dashboard() {
                           }}
                           labelStyle={{ color: '#e5e7eb', marginBottom: '8px', fontWeight: 'bold' }}
                           itemStyle={{ color: '#a78bfa', padding: '4px 0' }}
-                          formatter={(value, name) => {
-                            if (name === 'score') return [`${value}%`, 'Score'];
-                            if (name === 'average') return [`${value}%`, 'Average'];
-                            return [value, name];
+                          formatter={(value) => [`${value}%`, 'Accuracy']}
+                          labelFormatter={(label, payload) => {
+                            if (payload && payload[0]) {
+                              return payload[0].payload.fullDate || label;
+                            }
+                            return label;
                           }}
                           labelFormatter={(label, payload) => {
                             if (payload && payload[0]) {
@@ -629,11 +595,12 @@ export default function Dashboard() {
                         <Area
                           type="monotone"
                           dataKey="score"
-                          stroke="#8b5cf6"
-                          strokeWidth={3}
+                          stroke="#3b82f6"
+                          strokeWidth={4}
                           fill="url(#colorScore)"
-                          dot={{ r: 5, fill: "#8b5cf6", strokeWidth: 2, stroke: "#fff" }}
-                          activeDot={{ r: 8, fill: "#a78bfa", strokeWidth: 2, stroke: "#fff" }}
+                          dot={{ r: 6, fill: "#3b82f6", strokeWidth: 2, stroke: "#000" }}
+                          activeDot={{ r: 8, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
+                          animationDuration={500}
                         />
                         {/* Average line */}
                         <Line

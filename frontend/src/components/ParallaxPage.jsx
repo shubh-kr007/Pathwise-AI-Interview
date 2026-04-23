@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { FileScan, Bot, Map, TrendingUp, UploadCloud, Award, Quote } from "lucide-react";
+import { FileScan, Bot, Map, TrendingUp, UploadCloud, Award, Quote, ArrowRight } from "lucide-react";
 
 // Feature data
 const features = [
@@ -15,37 +15,45 @@ const features = [
 export default function CareerLanding() {
   const navigate = useNavigate();
   const featuresRef = React.useRef(null);
-  const inView = useInView(featuresRef, { amount: 0.2, once: false });
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 60 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { staggerChildren: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
+  const inView = useInView(featuresRef, { amount: 0.1, once: false });
 
   return (
-    <div className="w-full bg-black text-white overflow-x-hidden">
+    <div className="w-full bg-[#020617] text-white overflow-x-hidden">
       {/* 🔹 Features Section */}
       <section
         ref={featuresRef}
-        className="relative min-h-screen flex items-center justify-center px-6 py-24 bg-gradient-to-b from-black via-gray-900 to-black overflow-hidden"
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 py-32 bg-[#020617] overflow-hidden"
       >
-        <div className="pointer-events-none absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-black via-black/200 to-transparent z-20"></div>
-        <div className="pointer-events-none absolute bottom-0 left-0 w-full h-40 bg-gradient-to-b from-black via-black/70 to-transparent"></div>
+        {/* Dynamic Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(13,148,136,0.1),transparent_70%)]" />
+          <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[120px] animate-pulse" />
+          
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-10" />
+        </div>
 
-        {/* Enhanced Background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-500 opacity-20 blur-[100px]"></div>
-        <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-cyan-500 opacity-20 blur-[100px]"></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="relative z-10 text-center mb-24 max-w-3xl"
+        >
+          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-6">
+            Elite <span className="text-teal-400">Toolkit</span> for Top Candidates
+          </h2>
+          <p className="text-slate-400 text-lg font-medium leading-relaxed">
+            Every tool you need to outperform the competition, built with cutting-edge AI and advanced career logic.
+          </p>
+        </motion.div>
 
         <motion.div
-          className="relative z-30 grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl w-full"
-          variants={containerVariants}
+          className="relative z-30 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full px-4"
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={{
+            visible: { transition: { staggerChildren: 0.15 } }
+          }}
         >
           {features.map((feature) => (
             <Card key={feature.id} feature={feature} navigate={navigate} />
@@ -62,108 +70,89 @@ export default function CareerLanding() {
   );
 }
 
-// 🪄 Feature Card Component (Preserved as requested)
+// 🪄 Feature Card Component (Sleek Professional Design)
 const Card = ({ feature, navigate }) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-  };
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      variants={cardVariants}
+      variants={{
+        hidden: { opacity: 0, y: 40 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+      }}
       onClick={() => feature.path && navigate(feature.path)}
-      onMouseMove={handleMouseMove}
-      whileHover={{ y: -8 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="relative group bg-gray-900/60 backdrop-blur-md border border-white/10 rounded-3xl shadow-2xl p-8 cursor-pointer overflow-hidden"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      whileHover={{ y: -10 }}
+      className="relative group bg-slate-950/40 backdrop-blur-2xl border border-slate-900 rounded-[2.5rem] p-10 cursor-pointer overflow-hidden transition-all duration-500 hover:border-teal-500/50 hover:shadow-[0_20px_80px_-20px_rgba(20,184,166,0.2)]"
     >
-      <div
-        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(400px at ${mousePosition.x}px ${mousePosition.y}px, rgba(204, 51, 255, 0.15), transparent 80%)`,
-        }}
-      />
+      {/* Internal Glow Effect */}
+      <div className={`absolute inset-0 bg-gradient-to-br from-teal-600/5 to-blue-600/5 opacity-0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
 
       <div className="relative z-10">
-        <motion.div
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 300, damping: 10 }}
-          className="flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-fuchsia-800 to-cyan-600 text-white shadow-lg shadow-fuchsia-500/50 group-hover:shadow-xl group-hover:shadow-cyan-500/50 transition-shadow duration-500"
-        >
-          <feature.Icon className="w-8 h-8" strokeWidth={2} />
-        </motion.div>
-        <div className="space-y-3">
-          <h3 className="text-2xl font-bold text-white tracking-tight">{feature.title}</h3>
-          <p className="text-gray-400 leading-relaxed text-sm group-hover:text-gray-300 transition-colors duration-300">{feature.description}</p>
+        <div className="flex items-center justify-center w-16 h-16 mb-10 rounded-2xl bg-[#0f172a] border border-teal-900/30 text-white shadow-inner shadow-white/5 group-hover:scale-110 group-hover:bg-teal-600 group-hover:border-teal-400 transition-all duration-500">
+          <feature.Icon className="w-7 h-7" strokeWidth={1.5} />
         </div>
-        <motion.div
-          initial={{ x: -10, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          className="absolute bottom-8 right-8 text-gray-500 group-hover:text-white transition-colors duration-300"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-        </motion.div>
-      </div>
+        
+        <div className="space-y-4">
+          <h3 className="text-3xl font-bold text-white tracking-tighter leading-none group-hover:text-teal-400 transition-colors">
+            {feature.title}
+          </h3>
+          <p className="text-slate-400 leading-relaxed text-lg font-medium group-hover:text-slate-200 transition-colors">
+            {feature.description}
+          </p>
+        </div>
 
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-cyan-400 group-hover:w-full transition-all duration-500 ease-out"></div>
+        <div className="mt-12 flex items-center gap-3 text-slate-500 group-hover:text-white font-black text-xs uppercase tracking-[0.3em] transition-all">
+          <span className="w-8 h-[1px] bg-slate-800 group-hover:w-12 group-hover:bg-white transition-all" />
+          <span>Launch Module</span>
+          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-2 transition-transform" />
+        </div>
+      </div>
     </motion.div>
   );
 };
 
-// 🆕 How It Works Section (Upgraded)
+// 🆕 How It Works Section (Elevated Style)
 const HowItWorksSection = () => {
-  const ref = React.useRef(null);
-  const inView = useInView(ref, { once: false, amount: 0.2 });
   const steps = [
-    { icon: UploadCloud, title: "Upload & Analyze", description: "Submit your resume for an instant, in-depth analysis against industry standards." },
-    { icon: Bot, title: "Practice & Improve", description: "Engage in realistic AI mock interviews that adapt to your skill level." },
-    { icon: Award, title: "Track & Succeed", description: "Monitor your progress and walk into your next interview fully prepared to impress." },
+    { icon: UploadCloud, title: "Upload & Analysis", color: "bg-teal-500" },
+    { icon: Bot, title: "Intelligent Practice", color: "bg-cyan-500" },
+    { icon: Award, title: "Targeted Success", color: "bg-blue-500" },
   ];
 
   return (
-    <section ref={ref} className="px-6 py-32 bg-black relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <section className="px-6 py-40 bg-[#020617] relative overflow-hidden">
+      <div className="absolute top-1/2 left-0 w-full h-[600px] bg-teal-600/5 -translate-y-1/2 blur-[120px] pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto relative z-10 text-center">
+        <div className="inline-block px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-teal-400 text-xs font-black uppercase tracking-widest mb-8">
+          The Process
+        </div>
+        <h2 className="text-5xl md:text-7xl font-black mb-12 tracking-tighter text-white">
+          A Smarter Way to <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500">Accelerate</span>
+        </h2>
 
-      <div className="max-w-6xl mx-auto text-center relative z-10">
-        <motion.h2 initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} transition={{ duration: 0.7 }} className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
-          A Smarter Way to Prepare
-        </motion.h2>
-        <motion.p initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-gray-400 max-w-2xl mx-auto mb-20 text-lg">
-          Follow three simple steps to transform your job readiness.
-        </motion.p>
-
-        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12">
-          {/* Connecting Line (Desktop) */}
-          <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-gray-700 to-transparent z-0" />
-
-          {steps.map((step, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-24">
+          {steps.map((step, i) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="relative z-10 flex flex-col items-center"
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.2 }}
+              className="group relative flex flex-col items-center"
             >
-              <div className="relative flex items-center justify-center w-24 h-24 mb-8 rounded-2xl bg-gray-900 border border-white/10 shadow-xl shadow-violet-500/10 group hover:scale-110 transition-transform duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <step.icon size={32} className="text-white relative z-10" />
-                {/* Step Number Badge */}
-                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gray-800 border border-white/10 flex items-center justify-center text-sm font-bold text-gray-400">
-                  {index + 1}
+              <div className="relative w-32 h-32 mb-10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-slate-900 border border-slate-800 rounded-[2.5rem] rotate-45 group-hover:rotate-90 transition-transform duration-700" />
+                <div className={`absolute -top-4 -right-4 w-10 h-10 rounded-full ${step.color} text-white flex items-center justify-center font-black text-sm z-20`}>
+                  {i + 1}
                 </div>
+                <step.icon size={40} className="text-white relative z-10" />
               </div>
-
-              <h3 className="text-xl font-bold mb-3 text-white">{step.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">{step.description}</p>
+              <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">{step.title}</h3>
+              <p className="text-slate-400 text-lg leading-relaxed max-w-xs mx-auto">
+                Advanced AI algorithms decode your profile and build a bridge to your goals.
+              </p>
             </motion.div>
           ))}
         </div>
@@ -172,55 +161,39 @@ const HowItWorksSection = () => {
   );
 };
 
-// 🆕 Final CTA Section (Upgraded)
+// 🆕 Final CTA Section (Dynamic Gradient Style)
 const CTASection = ({ navigate }) => {
-  const ref = React.useRef(null);
-  const inView = useInView(ref, { once: false, amount: 0.5 });
-
   return (
-    <section ref={ref} className="py-32 px-6 bg-black relative">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] mask-image-gradient-to-b from-black via-transparent to-transparent"></div>
-
+    <section className="py-40 px-6 bg-[#020617] relative">
       <motion.div
-        className="relative max-w-5xl mx-auto text-center bg-gradient-to-b from-gray-900 to-black border border-white/10 rounded-[2.5rem] p-12 md:p-20 overflow-hidden shadow-2xl"
-        initial={{ opacity: 0, y: 50 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        className="relative max-w-6xl mx-auto overflow-hidden rounded-[4rem] bg-gradient-to-br from-teal-600 to-blue-900 p-1 md:p-2 shadow-[0_50px_100px_-20px_rgba(20,184,166,0.3)]"
       >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.15),transparent_70%)] pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-violet-300 mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
-            </span>
-            Start your journey today
+        <div className="bg-[#020617] rounded-[3.8rem] p-16 md:p-32 relative overflow-hidden">
+          {/* Animated Background Light */}
+          <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-teal-500/20 rounded-full blur-[100px] animate-pulse" />
+          
+          <div className="relative z-10 flex flex-col items-center text-center">
+             <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-10">
+               Ready to <span className="text-teal-400 underline decoration-teal-500/30">Dominate</span> <br className="hidden md:block" /> Your Career?
+             </h2>
+             <p className="text-xl text-slate-400 max-w-2xl mb-16 leading-relaxed font-medium">
+               Join 50,000+ candidates who have leveled up their careers with Pathwise precision.
+             </p>
+             
+             <motion.button
+               onClick={() => navigate('/interview')}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               className="group relative px-12 py-6 bg-white text-black rounded-3xl font-black text-xl flex items-center gap-4 hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] transition-shadow"
+             >
+               Start Free Session
+               <div className="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white group-hover:translate-x-2 transition-transform">
+                 <ArrowRight size={20} />
+               </div>
+             </motion.button>
           </div>
-
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-white">
-            Ready to Secure Your <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Dream Job?</span>
-          </h2>
-
-          <p className="text-gray-400 max-w-xl mx-auto mb-10 text-lg leading-relaxed">
-            Stop guessing and start preparing with data-driven insights. Join thousands of candidates who are acing their interviews.
-          </p>
-
-          <motion.button
-            onClick={() => navigate('/interview')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 overflow-hidden"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Get Started for Free
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-200 to-fuchsia-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </motion.button>
         </div>
       </motion.div>
     </section>

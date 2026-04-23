@@ -3,308 +3,212 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  Bot,
-  BookOpen,
   Clock,
   Target,
   TrendingUp,
-  Zap,
   CheckCircle2,
-  Play,
-  Award,
-  Code2,
-  Sparkles,
   ArrowRight,
-  History,
+  Sparkles,
+  Database,
+  Layers,
+  Coffee,
+  Binary,
   BrainCircuit,
-  Terminal,
-  Cpu
+  Award,
+  ChevronRight,
+  Gamepad2,
+  BarChart3
 } from "lucide-react";
 
-const interviewTypes = [
+const assessments = [
   {
-    id: "mcq",
-    title: "MCQ Challenge",
-    subtitle: "Speed & Accuracy",
-    description: "Rapid-fire multiple choice questions to test your theoretical knowledge across various domains.",
-    icon: <Bot className="h-8 w-8 text-cyan-400" />,
-    duration: "20 min",
-    difficulty: "Medium",
+    id: "data-analyst",
+    title: "Data Analyst",
+    subtitle: "Python & Analytics",
+    description: "Master data manipulation, visualization, and Python-based analysis logic.",
+    icon: <Database className="h-8 w-8 text-cyan-400" />,
     gradient: "from-cyan-500/20 to-blue-500/20",
-    border: "group-hover:border-cyan-500/50",
     textGradient: "from-cyan-400 to-blue-400",
-    features: ["Instant Feedback", "Topic Variety", "Score Tracking"]
+    features: ["Pandas & NumPy", "Data Cleaning", "Logical Reasoning"]
   },
   {
-    id: "coding",
-    title: "Coding Lab",
-    subtitle: "Algorithms & Logic",
-    description: "Solve algorithmic problems in a real-time code editor. Focus on efficiency, edge cases, and clean syntax.",
-    icon: <Terminal className="h-8 w-8 text-fuchsia-400" />,
-    duration: "45 min",
-    difficulty: "Hard",
+    id: "full-stack",
+    title: "Full Stack Dev",
+    subtitle: "MERN Stack",
+    description: "Comprehensive assessment covering React, Node.js, Express, and MongoDB.",
+    icon: <Layers className="h-8 w-8 text-fuchsia-400" />,
     gradient: "from-fuchsia-500/20 to-purple-500/20",
-    border: "group-hover:border-fuchsia-500/50",
     textGradient: "from-fuchsia-400 to-purple-400",
-    features: ["Syntax Highlighting", "Test Cases", "Time Complexity"]
+    features: ["Frontend Hooks", "API Mastery", "Database Schema"]
   },
   {
-    id: "technical",
-    title: "Technical Dive",
-    subtitle: "Concepts & Design",
-    description: "Deep dive into system design and conceptual questions. Articulate your thoughts clearly.",
-    icon: <Cpu className="h-8 w-8 text-emerald-400" />,
-    duration: "15 min",
-    difficulty: "Easy",
+    id: "java-dev",
+    title: "Java Developer",
+    subtitle: "Core Java & OOPs",
+    description: "OOPs concepts, Collections, Multithreading, and Exception handling.",
+    icon: <Coffee className="h-8 w-8 text-orange-400" />,
+    gradient: "from-orange-500/20 to-amber-500/20",
+    textGradient: "from-orange-400 to-amber-400",
+    features: ["OOPs Principles", "Memory Mgmt", "Core Syntax"]
+  },
+  {
+    id: "dsa",
+    title: "DSA Round",
+    subtitle: "Data Structures",
+    description: "Crack the algorithmic round with Arrays, Strings, and Linked Lists.",
+    icon: <Binary className="h-8 w-8 text-emerald-400" />,
     gradient: "from-emerald-500/20 to-teal-500/20",
-    border: "group-hover:border-emerald-500/50",
     textGradient: "from-emerald-400 to-teal-400",
-    features: ["System Design", "Oral Practice", "Key Concepts"]
+    features: ["Complexity Analysis", "Data Structures", "Problem Solving"]
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } },
-};
+const difficulties = [
+  { id: "easy", label: "Early Career", duration: "10m", level: "Easy", color: "text-green-400", bg: "bg-green-500/10" },
+  { id: "medium", label: "Professional", duration: "15m", level: "Medium", color: "text-blue-400", bg: "bg-blue-500/10" },
+  { id: "hard", label: "Elite Expert", duration: "25m", level: "Hard", color: "text-red-400", bg: "bg-red-500/10" },
+];
 
 export default function Interview() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [hoveredType, setHoveredType] = useState(null);
-
-  // Load real user stats from localStorage
-  const [userStats, setUserStats] = useState({
-    interviewsCompleted: 0,
-    averageScore: 0,
-    timeSaved: 0,
-    successRate: 0,
-  });
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [userStats, setUserStats] = useState({ interviewsCompleted: 0, averageScore: 0 });
 
   useEffect(() => {
-    loadUserStats();
-    const handleUpdate = () => loadUserStats();
-    window.addEventListener("attempts-updated", handleUpdate);
-    return () => window.removeEventListener("attempts-updated", handleUpdate);
+    const loadStats = async () => {
+      try {
+        const { default: api } = await import("../utils/api");
+        const attempts = await api.getAttempts();
+        const scores = attempts.filter((a) => typeof a.scorePercent === "number").map((a) => a.scorePercent);
+        setUserStats({
+          interviewsCompleted: attempts.length,
+          averageScore: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+        });
+      } catch {}
+    };
+    loadStats();
   }, []);
 
-  const loadUserStats = () => {
-    try {
-      const attemptsRaw = localStorage.getItem("interview_attempts_v1");
-      const attempts = attemptsRaw ? JSON.parse(attemptsRaw) : [];
-      const completed = attempts.length;
-      const scores = attempts
-        .filter((a) => typeof a.scorePercent === "number")
-        .map((a) => a.scorePercent);
-      const avgScore = scores.length
-        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-        : 0;
-      // Estimate 45min per interview
-      const timeSaved = (completed * 0.75).toFixed(1);
-      const successRate = avgScore > 0 ? Math.min(100, avgScore + 10) : 0;
-
-      setUserStats({
-        interviewsCompleted: completed,
-        averageScore: avgScore,
-        timeSaved: timeSaved,
-        successRate: successRate,
-      });
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    }
+  const handleStart = (difficulty) => {
+    navigate(`/interview-room?type=${selectedRole.id}&difficulty=${difficulty}`);
   };
 
-  const dashboardStats = [
-    {
-      label: "Interviews",
-      value: userStats.interviewsCompleted,
-      icon: CheckCircle2,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/20"
-    },
-    {
-      label: "Avg. Score",
-      value: `${userStats.averageScore}%`,
-      icon: TrendingUp,
-      color: "text-green-400",
-      bg: "bg-green-500/10",
-      border: "border-green-500/20"
-    },
-    {
-      label: "Time Invested",
-      value: `${userStats.timeSaved}h`,
-      icon: Clock,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/20"
-    },
-    {
-      label: "Readiness",
-      value: `${userStats.successRate}%`,
-      icon: Award,
-      color: "text-amber-400",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/20"
-    },
-  ];
-
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#050505] text-white pt-32 pb-20 px-6 overflow-hidden">
+      {/* Background Orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 -left-20 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 -right-20 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px]" />
+      </div>
 
-      {/* Abstract Background Blobs */}
-      <div className="absolute top-0 -left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute bottom-0 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[128px] pointer-events-none" />
-
-      <div className="relative z-10 p-6 md:p-12 max-w-7xl mx-auto pt-48">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          className="space-y-12"
-        >
-          {/* Hero Section */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div variants={itemVariants}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-6 backdrop-blur-md mt-12">
-                <Sparkles size={14} className="text-yellow-400" />
-                <span>AI-Powered Prep v2.0</span>
+      <div className="relative z-10 max-w-7xl mx-auto space-y-16">
+        <header className="flex flex-col md:flex-row justify-between items-end gap-8">
+           <div className="space-y-4 max-w-2xl">
+             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-blue-400 uppercase tracking-widest">
+               <BrainCircuit size={14} /> AI-Powered Proctoring
+             </div>
+             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
+               Select Your <br />
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Battleground</span>
+             </h1>
+             <p className="text-gray-500 text-lg">Choose a specialization and challenge level to begin your technical assessment.</p>
+           </div>
+           
+           <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 rounded-[24px] bg-white/5 border border-white/10 text-center min-w-[160px]">
+                <p className="text-3xl font-bold text-blue-400">{userStats.interviewsCompleted}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Tests Taken</p>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
-                Master Your <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                  Next Interview
-                </span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-lg leading-relaxed mb-8">
-                Experience realistic interview scenarios tailored to your role.
-                Get instant AI feedback and track your growth.
-              </p>
-
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => document.getElementById("interview-types").scrollIntoView({ behavior: "smooth" })}
-                  className="px-8 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all transform hover:scale-105 flex items-center gap-2"
-                >
-                  Start Practice <ArrowRight size={18} />
-                </button>
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-8 py-4 bg-white/5 border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 transition-all backdrop-blur-md flex items-center gap-2"
-                >
-                  <History size={18} /> History
-                </button>
+              <div className="p-6 rounded-[24px] bg-white/5 border border-white/10 text-center min-w-[160px]">
+                <p className="text-3xl font-bold text-purple-400">{userStats.averageScore}%</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Avg. Score</p>
               </div>
-            </motion.div>
+           </div>
+        </header>
 
-            {/* Stats Dashboard Grid in Hero */}
-            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
-              {dashboardStats.map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  whileHover={{ y: -5 }}
-                  className={`p-6 rounded-2xl border ${stat.border} ${stat.bg} backdrop-blur-xl flex flex-col items-center justify-center text-center gap-2`}
+        <AnimatePresence mode="wait">
+          {!selectedRole ? (
+            <motion.div
+              key="roles"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {assessments.map((tech) => (
+                <div
+                  key={tech.id}
+                  onClick={() => setSelectedRole(tech)}
+                  className="group relative cursor-pointer"
                 >
-                  <stat.icon className={`w-8 h-8 ${stat.color} mb-2`} />
-                  <span className="text-3xl font-bold">{stat.value}</span>
-                  <span className="text-sm text-gray-400 uppercase tracking-wider">{stat.label}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Interview Types Section */}
-          <div id="interview-types" className="pt-10">
-            <motion.div variants={itemVariants} className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold flex items-center gap-3">
-                <BrainCircuit className="text-purple-500" />
-                Select Mode
-              </h2>
-              <div className="hidden md:flex gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-sm text-gray-400">System Online</span>
-              </div>
-            </motion.div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {interviewTypes.map((type) => (
-                <motion.div
-                  key={type.id}
-                  variants={itemVariants}
-                  whileHover={{ y: -8 }}
-                  onHoverStart={() => setHoveredType(type.id)}
-                  onHoverEnd={() => setHoveredType(null)}
-                  className={`group relative bg-gray-900/40 border border-gray-800 hover:border-gray-600 rounded-3xl p-1 overflow-hidden transition-all duration-300`}
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${type.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-
-                  <div className="relative h-full bg-black/80 rounded-[22px] p-6 flex flex-col backdrop-blur-sm z-10 transition-colors">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className={`p-3 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors ${type.textGradient}`}>
-                        {type.icon}
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/5 ${type.textGradient.replace("text", "text")}`}>
-                        {type.duration}
-                      </span>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${tech.gradient} rounded-[32px] opacity-0 group-hover:opacity-100 transition-duration-500`} />
+                  <div className="relative h-full bg-[#111] border border-white/5 rounded-[32px] p-8 flex flex-col hover:bg-black/50 transition-all hover:scale-[1.02]">
+                    <div className="mb-6 p-4 rounded-2xl bg-white/5 w-fit group-hover:scale-110 transition-transform">
+                      {tech.icon}
                     </div>
-
-                    <h3 className={`text-2xl font-bold mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${type.textGradient} transition-all`}>
-                      {type.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm mb-4">{type.subtitle}</p>
-                    <p className="text-gray-400 leading-relaxed text-sm mb-6 flex-grow">
-                      {type.description}
-                    </p>
-
-                    <div className="space-y-3 mb-8">
-                      {type.features.map((feat, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-gray-500">
-                          <CheckCircle2 size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
-                          {feat}
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => navigate(`/interview-room?type=${type.id}`)}
-                      className="w-full py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white text-white hover:text-black font-semibold transition-all flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-white/10"
-                    >
-                      Initialize <ArrowRight size={16} />
+                    <h3 className="text-2xl font-bold mb-1 uppercase tracking-tight">{tech.title}</h3>
+                    <p className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">{tech.subtitle}</p>
+                    <p className="text-gray-500 text-sm mb-8 flex-grow">{tech.description}</p>
+                    <button className="flex items-center gap-2 text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                      Enter Assessment <ChevronRight size={18} />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="difficulty"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="max-w-4xl mx-auto"
+            >
+              <button 
+                onClick={() => setSelectedRole(null)}
+                className="mb-12 flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs"
+              >
+                <ChevronRight className="rotate-180" size={16} /> Back to specializations
+              </button>
 
-          {/* Quick Tips or Footer */}
-          <motion.div variants={itemVariants} className="grid md:grid-cols-3 gap-6 pt-10 border-t border-gray-800">
-            {[
-              { icon: Target, title: "Be Specific", desc: "Use metrics and real examples." },
-              { icon: Zap, title: "Stay Calm", desc: "Take a breath before answering." },
-              { icon: BookOpen, title: "Review", desc: "Check AI feedback after every session." }
-            ].map((tip, i) => (
-              <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                <div className="p-2 rounded-lg bg-gray-800 text-gray-300">
-                  <tip.icon size={20} />
-                </div>
-                <div>
-                  <h6 className="font-semibold">{tip.title}</h6>
-                  <p className="text-xs text-gray-500">{tip.desc}</p>
-                </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {difficulties.map((level) => (
+                  <div
+                    key={level.id}
+                    onClick={() => handleStart(level.id)}
+                    className="group cursor-pointer relative bg-white/5 border border-white/10 rounded-[32px] p-10 hover:border-blue-500 transition-all hover:bg-blue-500/5 hover:-translate-y-2"
+                  >
+                    <div className={`w-12 h-12 rounded-2xl ${level.bg} flex items-center justify-center mb-6`}>
+                       <Gamepad2 className={level.color} size={24} />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">{level.label}</h3>
+                    <div className={`text-xs font-bold uppercase tracking-widest ${level.color} mb-6`}>
+                      {level.level} · {level.duration}
+                    </div>
+                    <p className="text-gray-500 text-sm mb-8">
+                       {level.id === 'easy' && "Foundational questions for entry-level roles."}
+                       {level.id === 'medium' && "Industry standard challenges for experienced pros."}
+                       {level.id === 'hard' && "Elite-tier problems for top competitive edge."}
+                    </p>
+                    <div className="flex items-center gap-2 text-sm font-bold text-white group-hover:text-blue-400">
+                      Begin Mission <ArrowRight size={18} />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </motion.div>
 
-        </motion.div>
+              <div className="mt-12 text-center text-gray-600 text-sm uppercase tracking-widest font-bold">
+                 Selected Specialization: <span className="text-white">{selectedRole.title}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <footer className="pt-20 border-t border-white/5 flex flex-wrap justify-center gap-12 grayscale opacity-30 text-sm font-bold uppercase tracking-[0.2em]">
+           <span>High Accuracy</span>
+           <span>Groq Powered</span>
+           <span>MCQ Only</span>
+        </footer>
       </div>
     </div>
   );

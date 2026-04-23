@@ -1,24 +1,9 @@
 const express = require("express");
 const verifyToken = require("../middleware/auth");
+const { getAIClient, getAIModel, isAIReady } = require("../config/ai");
+const User = require("../models/User");
 
 const router = express.Router();
-
-// OpenAI setup (safe initialization)
-let openai = null;
-let USE_OPENAI = false;
-
-try {
-  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.length > 20) {
-    const OpenAI = require("openai");
-    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    USE_OPENAI = true;
-    console.log("✅ OpenAI initialized for AI chat");
-  } else {
-    console.log("⚠️ OpenAI not configured - using basic chat responses");
-  }
-} catch (error) {
-  console.log("⚠️ OpenAI initialization failed for chat");
-}
 
 // POST /api/ai/chat
 router.post("/chat", verifyToken, async (req, res) => {
@@ -30,15 +15,48 @@ router.post("/chat", verifyToken, async (req, res) => {
     }
 
     let response;
+    const openai = getAIClient();
+    const model = getAIModel();
 
-    if (USE_OPENAI && openai) {
-      // Use OpenAI for intelligent responses
+    // Fetch real user stats for personalized chat
+    const user = await User.findById(req.userId);
+    const userStats = {
+      name: user?.name || "Candidate",
+      completed: user?.interviewsCompleted || 0,
+      avgScore: user?.averageScore || 0,
+      resumeStatus: user?.resumeAnalyzed ? "Analyzed" : "Not yet analyzed"
+    };
+
+    if (isAIReady() && openai) {
+      // Use AI for intelligent responses
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: model,
         messages: [
           {
             role: "system",
-            content: "You are InterviewBot, an AI assistant specializing in career development, interview preparation, and job search advice. Provide helpful, concise, and encouraging responses. Focus on interview tips, resume advice, career guidance, and Pathwise platform features."
+            content: `You are InterviewBot, the expert AI assistant of Pathwise — an advanced AI-powered career growth and interview preparation platform.
+
+            Current User Context:
+            - Name: ${userStats.name}
+            - Completed Assessments: ${userStats.completed}
+            - Average Score: ${userStats.avgScore}%
+            - Resume Status: ${userStats.resumeStatus}
+
+            Guidelines for Progress Queries:
+            1. If they ask about "progress", "report", or "how am I doing", reference their ${userStats.avgScore}% score and ${userStats.completed} tests.
+            2. If Avg Score > 80: Say "You are performing at an Elite level! Your ${userStats.avgScore}% accuracy is impressive. You should try the 'Hard' difficulty in the DSA round."
+            3. If Avg Score 50-80: Say "You are doing well with ${userStats.completed} tests completed. To reach the top 1%, focus on retry-ing 'Medium' level assessments for more consistency."
+            4. If Avg Score < 50: Be very encouraging: "You've started strong with ${userStats.completed} sessions. I suggest focusing on 'Easy' level tracks in your core specialization to build a solid foundation."
+            5. If no tests done (0): Suggest they go to the 'Interview' section and start with an 'Easy' assessment.
+            6. Always provide one clear 'Improvement Tip' based on their score.
+            
+            Guidelines:
+            - Be professional, encouraging, and concise.
+            - If users ask about Pathwise features, explain:
+              - Mock Interviews: 4 tracks (Data Analyst, Full Stack, Java, DSA) with 3 difficulties.
+              - Resume Intelligence: LlamaParse-driven ATS scores and roadmaps.
+              - Performance Tracking: Dashboard with trend graphs.
+            - Help users with interview tips, resume advice, and general career guidance.`
           },
           {
             role: "user",
@@ -52,23 +70,13 @@ router.post("/chat", verifyToken, async (req, res) => {
       response = completion.choices[0].message.content.trim();
     } else {
       // Fallback basic responses
-      const lowerMessage = message.toLowerCase();
-
-      if (lowerMessage.includes("interview")) {
-        response = "For interview preparation, practice the STAR method for behavioral questions and review common technical questions. Check out our Interview Room for mock interviews!";
-      } else if (lowerMessage.includes("resume")) {
-        response = "Upload your resume in the Dashboard for AI-powered analysis. Focus on quantifiable achievements and relevant keywords for your target role.";
-      } else if (lowerMessage.includes("job") || lowerMessage.includes("application")) {
-        response = "Use our Job Search feature to find opportunities. Track your applications in the Application Tracker to stay organized.";
-      } else {
-        response = "I'm here to help with career advice, interview prep, and using Pathwise effectively. What specific question do you have?";
-      }
+      response = `I'm here to help with career advice. Based on your records, you've completed ${userStats.completed} assessments with an average score of ${userStats.avgScore}%. Keep pushing forward!`;
     }
 
     res.json({
       success: true,
       response,
-      aiGenerated: !!(USE_OPENAI && openai)
+      aiGenerated: isAIReady()
     });
 
   } catch (error) {
@@ -83,27 +91,39 @@ router.post("/chat", verifyToken, async (req, res) => {
 // POST /api/ai/generate-questions
 router.post("/generate-questions", verifyToken, async (req, res) => {
   try {
-    const { type, topic } = req.body; // type: 'mcq', 'coding', 'technical'
+    const openai = getAIClient();
+    const model = getAIModel();
 
-    if (!USE_OPENAI || !openai) {
+    if (!isAIReady() || !openai) {
       return res.status(503).json({
         message: "AI service not available",
         useFallback: true
       });
     }
 
+    const { type, topic, difficulty } = req.body;
+
     let prompt = "";
     let systemPrompt = "You are an expert technical interviewer.";
 
     if (type === "mcq") {
-      systemPrompt += " Generate 5 multiple choice questions for a technical interview.";
+      systemPrompt += ` Generate 5 ${difficulty || "medium"} difficulty multiple choice questions for a technical interview.`;
+      
+      let levelDescription = "";
+      if (difficulty === "easy") levelDescription = "Focus on basic syntax, core definitions, and foundational concepts.";
+      else if (difficulty === "hard") levelDescription = "Focus on deep internal mechanics, performance optimization, architectural trade-offs, and complex edge cases.";
+      else levelDescription = "Focus on real-world application, standard problem-solving scenarios, and industry best practices.";
+
       prompt = `Generate 5 multiple-choice questions about ${topic || "general software engineering"}. 
+      The difficulty level is ${(difficulty || "medium").toUpperCase()}. 
+      Guideline: ${levelDescription}
+      
       Return purely JSON array with objects having: 
       - id (unique string)
       - prompt (question text)
       - options (array of 4 strings)
       - answerIndex (0-3 index of correct option)
-      - explanation (short explanation)
+      - explanation (detailed reason why this is correct)
       Output JSON only.`;
     } else if (type === "coding") {
       systemPrompt += " Generate 2 coding challenges.";
@@ -127,7 +147,7 @@ router.post("/generate-questions", verifyToken, async (req, res) => {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt }
@@ -162,13 +182,16 @@ router.post("/generate-questions", verifyToken, async (req, res) => {
 // POST /api/ai/interview-feedback
 router.post("/interview-feedback", verifyToken, async (req, res) => {
   try {
-    const { type, questions, answers } = req.body;
+    const openai = getAIClient();
+    const model = getAIModel();
 
-    if (!USE_OPENAI || !openai) {
+    if (!isAIReady() || !openai) {
       return res.json({
         feedback: "AI feedback unavailable. Your answers have been recorded for review."
       });
     }
+
+    const { type, questions, answers } = req.body;
 
     const prompt = `
       I have completed a ${type} interview.
@@ -182,7 +205,7 @@ router.post("/interview-feedback", verifyToken, async (req, res) => {
     `;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: model,
       messages: [
         { role: "system", content: "You are a helpful interview coach." },
         { role: "user", content: prompt }

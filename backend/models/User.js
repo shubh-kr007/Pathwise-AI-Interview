@@ -15,26 +15,7 @@ const userSchema = new mongoose.Schema({
   
   // Resume data
   resumeAnalyzed: { type: Boolean, default: false },
-  resumeData: {
-    analyzedAt: { type: Date },
-    score: { type: Number },
-    summary: { type: String },
-    strengths: [String],
-    weaknesses: [String],
-    improvements: [String],
-    keywords: {
-      present: [String],
-      missing: [String]
-    },
-    sections: {
-      contact: String,
-      experience: String,
-      education: String,
-      skills: String
-    },
-    atsCompatibility: { type: Number },
-    recommendations: [String]
-  },
+  resumeData: { type: mongoose.Schema.Types.Mixed, default: null },
   
   lastActivity: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now }

@@ -1,189 +1,72 @@
-// src/pages/InterviewRoom.jsx
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bot,
-  ListChecks,
-  Code2,
-  BookOpenCheck,
-  ChevronLeft,
-  ChevronRight,
+  Clock,
   CheckCircle2,
   XCircle,
-  RotateCcw,
-  MessageSquare,
-  Sparkles
+  ChevronLeft,
+  ChevronRight,
+  BrainCircuit,
+  Bot,
+  Trophy,
+  RefreshCw,
+  ArrowRight,
+  Sparkles,
+  AlertCircle
 } from "lucide-react";
 import { useToast } from "../components/ToastProvider";
-import InterviewRoomSkeleton from "../components/InterviewRoomSkeleton";
-import AIFeedbackReport from "../components/AIFeedbackReport";
 import { useAuth } from "../context/AuthContext";
-import sessionManager from "../utils/sessionManager";
 import { API_BASE } from "../config/api";
-
-// Modes available
-const MODES = [
-  { id: "mcq", label: "MCQ Based", icon: ListChecks },
-  { id: "coding", label: "Coding Based", icon: Code2 },
-  { id: "technical", label: "Technical Based", icon: BookOpenCheck },
-];
 
 function useQuery() {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-// Question bank for fallback/offline use
-const QUESTION_BANK = {
-  mcq: {
-    mcq: [
-      {
-        id: "t-m-1",
-        prompt: "What is the time complexity of binary search on a sorted array?",
-        options: ["O(n)", "O(log n)", "O(n log n)", "O(1)"],
-        answerIndex: 1,
-        explanation: "Binary search splits the search space in half each iteration: O(log n).",
-      },
-      {
-        id: "t-m-2",
-        prompt: "Which data structure is best for implementing LRU cache in O(1)?",
-        options: ["Array", "Stack", "HashMap + Doubly Linked List", "Queue"],
-        answerIndex: 2,
-        explanation: "HashMap for lookup + Doubly Linked List for O(1) eviction/move-to-front.",
-      },
-      {
-        id: "t-m-3",
-        prompt: "What is a closure in JavaScript?",
-        options: ["A function inside another function", "A variable scope", "A function that retains access to outer variables", "A loop structure"],
-        answerIndex: 2,
-        explanation: "Closure is when a function retains access to variables from its outer scope even after the outer function has executed.",
-      },
-      {
-        id: "t-m-4",
-        prompt: "What does 'virtual DOM' mean in React?",
-        options: ["A physical copy of DOM", "An in-memory representation of DOM", "A server-side DOM", "A CSS framework"],
-        answerIndex: 1,
-        explanation: "Virtual DOM is a lightweight copy of the actual DOM kept in memory for efficient updates.",
-      },
-      {
-        id: "t-m-5",
-        prompt: "Which of these is NOT a valid HTTP method?",
-        options: ["GET", "POST", "FETCH", "DELETE"],
-        answerIndex: 2,
-        explanation: "FETCH is not an HTTP method. Common methods are GET, POST, PUT, DELETE, PATCH.",
-      },
-    ],
-  },
-  coding: {
-    coding: [
-      {
-        id: "t-c-1",
-        prompt: "Write a function to return the first non-repeating character in a string.",
-        starter: `function firstUniqueChar(s) {\n  // write your solution\n}`,
-        rubric: ["Correctness", "Time complexity", "Edge cases (empty, all repeat)"]
-      },
-      {
-        id: "t-c-2",
-        prompt: "Implement a function that checks if two strings are anagrams.",
-        starter: `function areAnagrams(a, b) {\n  // write your solution\n}`,
-        rubric: ["Normalize case/spacing", "Counting vs sorting", "Performance"]
-      },
-      {
-        id: "t-c-3",
-        prompt: "Write a function to reverse a linked list.",
-        starter: `function reverseList(head) {\n  // write your solution\n}`,
-        rubric: ["Pointer manipulation", "Edge cases (empty list)", "Time/Space complexity"]
-      },
-      {
-        id: "t-c-4",
-        prompt: "Implement a function to find the maximum subarray sum (Kadane's algorithm).",
-        starter: `function maxSubArray(nums) {\n  // write your solution\n}`,
-        rubric: ["Dynamic programming approach", "Edge cases", "Optimal solution"]
-      },
-      {
-        id: "t-c-5",
-        prompt: "Write a function to detect if a linked list has a cycle.",
-        starter: `function hasCycle(head) {\n  // write your solution\n}`,
-        rubric: ["Two-pointer technique", "Edge cases", "Space optimization"]
-      },
-    ],
-  },
-  technical: {
-    technical: [
-      {
-        id: "t-q-1",
-        prompt: "Briefly describe the difference between processes and threads.",
-        placeholder: "Type your answer here...",
-        checklist: ["Isolation", "Shared memory", "Context switching"],
-      },
-      {
-        id: "t-q-2",
-        prompt: "Explain event loop and microtask queue in JavaScript.",
-        placeholder: "Type your answer here...",
-        checklist: ["Call stack", "Task vs microtask", "Ordering"]
-      },
-      {
-        id: "t-q-3",
-        prompt: "What is the difference between SQL and NoSQL databases?",
-        placeholder: "Type your answer here...",
-        checklist: ["Schema", "Scalability", "Use cases"]
-      },
-      {
-        id: "t-q-4",
-        prompt: "Explain REST API and its constraints.",
-        placeholder: "Type your answer here...",
-        checklist: ["Stateless", "Uniform interface", "Client-server"]
-      },
-      {
-        id: "t-q-5",
-        prompt: "What are promises in JavaScript and how do they work?",
-        placeholder: "Type your answer here...",
-        checklist: ["Async operations", "States (pending/fulfilled/rejected)", "Then/catch"]
-      },
-    ],
-  },
+const TOPIC_MAP = {
+  "data-analyst": "Python for Data Analysis, Pandas, NumPy, and SQL",
+  "full-stack": "MERN Stack (MongoDB, Express, React, Node.js)",
+  "java-dev": "Core Java, OOPs, Collections, and Multi-threading",
+  "dsa": "Easy to Medium Data Structures and Algorithms (Arrays, Strings, Linked Lists)",
 };
 
-function Header({ title, subtitle }) {
-  return (
-    <div className="mb-6">
-      <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
-      {subtitle && <p className="text-gray-400 mt-1">{subtitle}</p>}
-    </div>
-  );
-}
+const TITLE_MAP = {
+  "data-analyst": "Data Analyst Assessment",
+  "full-stack": "Full Stack Mastery",
+  "java-dev": "Core Java Proficiency",
+  "dsa": "DSA Algorithmic Round",
+};
 
 export default function InterviewRoom() {
   const query = useQuery();
   const navigate = useNavigate();
   const { push } = useToast();
   const { user } = useAuth();
-  const interviewType = (query.get("type") || "mcq").toLowerCase();
-  const [mode, setMode] = useState(interviewType);
+  
+  const assessmentType = query.get("type") || "dsa";
+  const assessmentDifficulty = query.get("difficulty") || "medium";
+  const assessmentTopic = TOPIC_MAP[assessmentType] || assessmentType;
+  const assessmentTitle = `${TITLE_MAP[assessmentType] || 'Skills Assessment'} (${assessmentDifficulty.toUpperCase()})`;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [questionSubmitted, setQuestionSubmitted] = useState({});
-  const attemptSavedRef = useRef(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const QUESTION_TIME = 60;
-  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
-
-  const [aiFeedback, setAiFeedback] = useState(null);
+  const [userFinished, setUserFinished] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [score, setScore] = useState(null);
+  const [aiFeedback, setAiFeedback] = useState("");
   const [loadingFeedback, setLoadingFeedback] = useState(false);
 
-  const [questions, setQuestions] = useState([]);
-  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  // Timer Reference
+  const timerRef = useRef(null);
 
-  // Load questions (AI or Fallback)
+  // Load Assessment Questions
   useEffect(() => {
-    if (!mode) return;
-
-    let mounted = true;
-
     const fetchQuestions = async () => {
-      setLoadingQuestions(true);
+      setLoading(true);
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_BASE}/api/ai/generate-questions`, {
@@ -192,960 +75,285 @@ export default function InterviewRoom() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ type: mode }),
+          body: JSON.stringify({ 
+            type: "mcq", 
+            topic: assessmentTopic, 
+            difficulty: assessmentDifficulty 
+          }),
         });
 
         const data = await response.json();
-
-        if (mounted) {
-          if (response.ok && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-            setQuestions(data.questions);
-          } else {
-            throw new Error("Use fallback");
-          }
+        if (response.ok && data.questions) {
+          setQuestions(data.questions);
+        } else {
+          throw new Error("Failed to load questions");
         }
       } catch (error) {
-        if (mounted) {
-          console.log("Using fallback questions:", error);
-          // Fallback logic
-          const bank = QUESTION_BANK[mode] || QUESTION_BANK.technical;
-          const list = bank[mode] || []; // This should be an array
-
-          // Robust padToLength
-          const padToLength = (arr, target = 5) => {
-            if (!Array.isArray(arr) || arr.length === 0) return [];
-            // Create deep copy to avoid reference issues
-            const base = arr.map(q => ({ ...q }));
-            // If we have enough, just slice
-            if (base.length >= target) return base.slice(0, target);
-
-            // If not enough, duplicate until we have enough
-            let result = [...base];
-            while (result.length < target) {
-              result = [...result, ...base];
-            }
-            return result.slice(0, target).map((q, i) => ({ ...q, id: `${q.id}-dup-${i}` }));
-          };
-
-          const fallbackQuestions = padToLength(list, 5);
-          if (fallbackQuestions.length > 0) {
-            setQuestions(fallbackQuestions);
-          } else {
-            // Last resort fallback if bank is empty
-            setQuestions([{
-              id: 'fallback-error',
-              prompt: 'Error loading questions. Please try again.',
-              options: [],
-              rubric: [],
-              checklist: []
-            }]);
-          }
-        }
+        push("Session expired or generation failed. Taking you back.", { type: "error" });
+        setTimeout(() => navigate("/interview"), 2000);
       } finally {
-        if (mounted) setLoadingQuestions(false);
+        setLoading(false);
       }
     };
 
     fetchQuestions();
+  }, [assessmentType]);
 
-    return () => { mounted = false; };
-  }, [mode]);
-
+  // Main Timer Logic
   useEffect(() => {
-    setCurrentIndex(0);
-    setAnswers({});
-    setQuestionSubmitted({});
-    setSubmitted(false);
-    setShowWarning(!!mode);
-    setTimeLeft(QUESTION_TIME);
-    attemptSavedRef.current = false;
-    setAiFeedback(null);
-    setLoadingFeedback(false);
-  }, [mode]);
+    if (loading || userFinished || questions.length === 0) return;
 
-  const current = questions[currentIndex];
-
-  const [optionMap, setOptionMap] = useState({});
-
-  useEffect(() => {
-    if (!mode || !questions || questions.length === 0) return;
-    if (mode !== "mcq") {
-      setOptionMap({});
+    if (timeLeft <= 0) {
+      handleNext();
       return;
     }
 
-    const map = {};
-    questions.forEach((q) => {
-      // Safety check for options
-      if (q && Array.isArray(q.options)) {
-        const order = [...q.options.keys()].sort(() => Math.random() - 0.5);
-        const newAnswerIndex = order.indexOf(q.answerIndex);
-        map[q.id] = { order, answerIndex: newAnswerIndex };
-      }
-    });
-    setOptionMap(map);
-  }, [mode, questions]);
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
 
-  const handleAnswer = (qid, value) => {
-    setAnswers((prev) => ({ ...prev, [qid]: value }));
-  };
+    return () => clearInterval(timerRef.current);
+  }, [timeLeft, loading, userFinished]);
 
-  const canNext = currentIndex < questions.length - 1;
-  const canPrev = currentIndex > 0;
-
-  const computeFinished = (submittedMap) => {
-    const allIds = questions.map((q) => q.id);
-    return allIds.length > 0 && allIds.every((id) => submittedMap[id]);
-  };
-
-  const persistAttemptIfFinished = async (submittedMap) => {
-    const finished = computeFinished(submittedMap);
-    if (!finished) return;
-    if (attemptSavedRef.current) return;
-    attemptSavedRef.current = true;
-    setSubmitted(true);
-
-    try {
-      const ts = Date.now();
-      let percent = null;
-      if (mode === "mcq") {
-        let correct = 0;
-        questions.forEach((q) => {
-          const mapped = optionMap[q.id];
-          const ans = answers[q.id];
-          const correctIndex = mapped ? mapped.answerIndex : q.answerIndex;
-          if (typeof ans === "number" && ans === correctIndex) correct += 1;
-        });
-        percent = Math.round((correct / questions.length) * 100);
-      }
-
-      const report = buildReport({
-        interviewType,
-        mode,
-        questions,
-        answers,
-        optionMap,
-        mcqPercent: percent,
-      });
-      const plan = buildPracticePlan(report);
-
-      // AI feedback: call backend
-      setLoadingFeedback(true);
-      try {
-        const token = localStorage.getItem("token");
-
-        const feedbackResponse = await fetch(`${API_BASE}/api/ai/interview-feedback`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            type: interviewType,
-            mode,
-            questions,
-            answers,
-          }),
-        });
-
-        if (feedbackResponse.ok) {
-          const feedbackData = await feedbackResponse.json();
-          setAiFeedback(feedbackData.feedback);
-          localStorage.setItem(
-            "last_ai_feedback_v1",
-            JSON.stringify(feedbackData.feedback)
-          );
-        }
-      } catch (feedbackError) {
-        console.error("AI feedback error:", feedbackError);
-      } finally {
-        setLoadingFeedback(false);
-      }
-
-      // Save attempt to backend
-      const payload = {
-        type: interviewType,
-        mode,
-        scorePercent: percent,
-        answers,
-        report,
-        plan,
-      };
-
-      const response = await fetch(`${API_BASE}/api/progress/save-attempt`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        localStorage.setItem(
-          "last_report_v1",
-          JSON.stringify({ ...report, timestamp: ts })
-        );
-        localStorage.setItem("practice_plan_v1", JSON.stringify(plan));
-        try {
-          window.dispatchEvent(new CustomEvent("attempts-updated"));
-        } catch { }
-        try {
-          push("Interview completed! AI feedback generated.", { type: "success" });
-        } catch { }
-      } else {
-        throw new Error("Failed to save attempt to backend");
-      }
-    } catch (error) {
-      console.error("Error saving attempt:", error);
-
-      // Fallback using session manager
-      try {
-        const ts = Date.now();
-        let percent = null;
-        if (mode === "mcq") {
-          let correct = 0;
-          questions.forEach((q) => {
-            const mapped = optionMap[q.id];
-            const ans = answers[q.id];
-            const correctIndex = mapped ? mapped.answerIndex : q.answerIndex;
-            if (typeof ans === "number" && ans === correctIndex) correct += 1;
-          });
-          percent = Math.round((correct / questions.length) * 100);
-        }
-
-        sessionManager.saveInterviewAttempt({
-          type: interviewType,
-          mode,
-          timestamp: ts,
-          scorePercent: percent,
-        });
-
-        const report = buildReport({
-          interviewType,
-          mode,
-          questions,
-          answers,
-          optionMap,
-          mcqPercent: percent,
-        });
-        localStorage.setItem("last_report_v1", JSON.stringify({ ...report, timestamp: ts }));
-
-        const plan = buildPracticePlan(report);
-        localStorage.setItem("practice_plan_v1", JSON.stringify(plan));
-
-        try {
-          window.dispatchEvent(new CustomEvent("attempts-updated"));
-        } catch { }
-
-        try {
-          push("Interview attempt saved locally!", { type: "success" });
-        } catch { }
-      } catch (fallbackError) {
-        console.error("Fallback save failed:", fallbackError);
-      }
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((p) => p + 1);
+      setTimeLeft(60);
+    } else {
+      finishAssessment();
     }
   };
 
-  function scoreClarityFromText(text) {
-    if (!text) return 0;
-    const len = text.trim().length;
-    if (len < 40) return 40;
-    if (len < 120) return 65;
-    if (len < 300) return 80;
-    return 90;
-  }
-
-  function scoreStructureFromKeywords(text, keywords) {
-    if (!text || !keywords || !keywords.length) return 60;
-    const lower = text.toLowerCase();
-    let hits = 0;
-    keywords.forEach((k) => {
-      if (lower.includes(String(k).toLowerCase().split(" ")[0])) hits += 1;
-    });
-    const pct = Math.min(100, Math.round((hits / keywords.length) * 100));
-    return Math.max(60, pct);
-  }
-
-  function buildReport({ interviewType, mode, questions, answers, optionMap, mcqPercent }) {
-    const correctness = typeof mcqPercent === "number" ? mcqPercent : 0;
-    let claritySum = 0,
-      clarityCount = 0;
-    let structureSum = 0,
-      structureCount = 0;
-    questions.forEach((q) => {
-      const ans = answers[q.id];
-      if (mode === "coding" || mode === "technical") {
-        if (typeof ans === "string") {
-          claritySum += scoreClarityFromText(ans);
-          clarityCount += 1;
-          const keys = q.checklist || q.rubric || [];
-          structureSum += scoreStructureFromKeywords(ans, keys);
-          structureCount += 1;
-        }
-      }
-    });
-    const clarity = clarityCount
-      ? Math.round(claritySum / clarityCount)
-      : mode === "mcq"
-        ? 70
-        : 0;
-    const structure = structureCount
-      ? Math.round(structureSum / structureCount)
-      : mode === "mcq"
-        ? 65
-        : 0;
-    const strengths = [];
-    const weaknesses = [];
-    if (correctness >= 75) strengths.push("Correctness");
-    else weaknesses.push("Correctness");
-    if (clarity >= 75) strengths.push("Clarity");
-    else weaknesses.push("Clarity");
-    if (structure >= 75) strengths.push("Structure");
-    else weaknesses.push("Structure");
-    const resources = buildResources({ interviewType, weaknesses });
-    return {
-      type: interviewType,
-      mode,
-      scores: { correctness, clarity, structure },
-      strengths,
-      weaknesses,
-      resources,
-    };
-  }
-
-  function buildResources({ interviewType, weaknesses }) {
-    const links = {
-      Correctness: [
-        { title: "LeetCode Patterns", url: "https://seanprashad.com/leetcode-patterns/" },
-        { title: "NeetCode Roadmap", url: "https://neetcode.io/roadmap" },
-      ],
-      Clarity: [
-        { title: "STAR Method Guide", url: "https://www.themuse.com/advice/star-interview-method" },
-        {
-          title: "Technical Communication Tips",
-          url: "https://www.khanacademy.org/college-careers-more/career-content",
-        },
-      ],
-      Structure: [
-        {
-          title: "System Design Primer",
-          url: "https://github.com/donnemartin/system-design-primer",
-        },
-        {
-          title: "Grokking the System Design",
-          url: "https://www.designgurus.io/course/grokking-the-system-design-interview",
-        },
-      ],
-    };
-    let out = [];
-    weaknesses.forEach((w) => {
-      out = out.concat(links[w] || []);
-    });
-    return out.slice(0, 4);
-  }
-
-  function buildPracticePlan(report) {
-    const now = Date.now();
-    const weak = report.weaknesses;
-    const entries = weak.map((w) => ({
-      topic: w,
-      due: [now + 1 * 86400000, now + 3 * 86400000, now + 7 * 86400000],
-    }));
-    return { generatedAt: now, entries };
-  }
-
-  const submitCurrentQuestion = () => {
-    if (!current) return;
-    setQuestionSubmitted((prev) => {
-      const next = { ...prev, [current.id]: true };
-      persistAttemptIfFinished(next);
-      return next;
-    });
+  const handleSelect = (optionIdx) => {
+    if (userFinished) return;
+    setAnswers((prev) => ({ ...prev, [currentIndex]: optionIdx }));
   };
 
-  const score = useMemo(() => {
-    if (!submitted || mode !== "mcq") return null;
-    let correct = 0;
-    questions.forEach((q) => {
-      if (typeof answers[q.id] === "number" && answers[q.id] === q.answerIndex)
-        correct += 1;
+  const finishAssessment = async () => {
+    setUserFinished(true);
+    clearInterval(timerRef.current);
+
+    // Calculate score
+    let correctCount = 0;
+    questions.forEach((q, idx) => {
+      if (answers[idx] === q.answerIndex) correctCount++;
     });
-    return {
-      correct,
-      total: questions.length,
-      percent: Math.round((correct / questions.length) * 100),
-    };
-  }, [submitted, mode, questions, answers]);
+    
+    const finalScore = Math.round((correctCount / questions.length) * 100);
+    setScore({ correct: correctCount, total: questions.length, percent: finalScore });
 
-  const restart = () => {
-    setCurrentIndex(0);
-    setAnswers({});
-    setSubmitted(false);
-    setQuestionSubmitted({});
-    setTimeLeft(QUESTION_TIME);
-    attemptSavedRef.current = false;
-    setAiFeedback(null);
-  };
-
-  // Timer resets on question/mode change
-  useEffect(() => {
-    if (!mode || submitted || showWarning || questions.length === 0) return;
-    setTimeLeft(QUESTION_TIME);
-  }, [currentIndex, mode, submitted, showWarning, questions.length]);
-
-  // Timer countdown
-  useEffect(() => {
-    if (!mode || showWarning || questions.length === 0 || submitted) return;
-    const tick = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(tick);
-          setQuestionSubmitted((prev) => {
-            const already = prev[current?.id];
-            const nextMap = already ? prev : { ...prev, [current?.id]: true };
-            persistAttemptIfFinished(nextMap);
-            return nextMap;
-          });
-          if (currentIndex < questions.length - 1) setCurrentIndex((i) => i + 1);
-          return QUESTION_TIME;
-        }
-        return t - 1;
+    // Save attempt and fetch AI Feedback
+    setLoadingFeedback(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Save Attempt
+      await fetch(`${API_BASE}/api/progress/save-attempt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: assessmentType,
+          mode: "mcq",
+          scorePercent: finalScore,
+          answers: answers
+        }),
       });
-    }, 1000);
-    return () => clearInterval(tick);
-  }, [mode, showWarning, questions.length, currentIndex, current, submitted]);
 
-  return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
-      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-48 pb-10">
-        <Header
-          title="Interview Room"
-          subtitle={`Type: ${interviewType.replace("-", " ").toUpperCase()}`}
-        />
+      // Get AI Feedback
+      const feedbackRes = await fetch(`${API_BASE}/api/ai/interview-feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: assessmentType,
+          questions,
+          answers: Object.values(answers).map(a => questions[currentIndex]?.options[a] || "No answer"),
+        }),
+      });
+      
+      if (feedbackRes.ok) {
+        const fb = await feedbackRes.json();
+        setAiFeedback(fb.feedback);
+      }
+    } catch (err) {
+      console.error("Post-assessment failure:", err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
 
-        {/* Mode selection removed as it's auto-selected from URL */}
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <RefreshCw className="w-12 h-12 text-blue-500 animate-spin mx-auto" />
+          <h2 className="text-2xl font-bold tracking-tight">Initializing Groq Assessment Engine...</h2>
+          <p className="text-gray-500">Curating fresh questions for {assessmentTitle}</p>
+        </div>
+      </div>
+    );
+  }
 
-        {mode && (
-          <div className="mt-6">
-            {/* Top controls */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 text-gray-400">
-                <Bot size={18} className="text-purple-400" />
-                <span className="uppercase text-xs tracking-wider">{mode} mode</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigate("/interview")}
-                  className="cursor-pointer px-3 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-white/5"
-                >
-                  Back
-                </button>
-              </div>
+  if (userFinished && score) {
+    return (
+      <div className="min-h-screen bg-[#050505] text-white pt-32 px-6 pb-20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto space-y-12">
+          <header className="text-center">
+            <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+            <h1 className="text-4xl font-bold mb-2">Assessment Complete!</h1>
+            <p className="text-gray-400">Total accuracy measured for {assessmentTitle}</p>
+          </header>
+
+          <div className="grid grid-cols-3 gap-6">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Score</p>
+              <p className="text-3xl font-bold text-blue-400">{score.percent}%</p>
             </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Correct</p>
+              <p className="text-3xl font-bold text-green-400">{score.correct}</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Total</p>
+              <p className="text-3xl font-bold text-gray-300">{score.total}</p>
+            </div>
+          </div>
 
-            {/* Warning Overlay */}
-            {showWarning && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 220, damping: 18 }}
-                  className="relative w-[90%] max-w-lg bg-gradient-to-b from-gray-900/90 to-black/80 border border-white/10 rounded-2xl p-6 text-center overflow-hidden"
-                >
-                  <span className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-fuchsia-600/25 to-cyan-500/25 rounded-full blur-3xl"></span>
-                  <div className="relative z-10">
-                    <div className="text-5xl mb-2">⚡</div>
-                    <h3 className="text-xl font-bold mb-2">Serious Mode Engaged</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">
-                      Each question has a 60-second timer. Submit your answer before time runs out. You got this! 💪
-                    </p>
-                    <div className="mt-5 flex gap-3 justify-center">
-                      <button
-                        onClick={() => setShowWarning(false)}
-                        className="cursor-pointer px-5 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90"
-                      >
-                        I'm Ready 🚀
-                      </button>
-                      <button
-                        onClick={() => navigate("/interview")}
-                        className="cursor-pointer px-5 py-2 rounded-lg border border-gray-700 hover:bg-white/5"
-                      >
-                        Change Mode
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
+          <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 space-y-6">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="text-purple-400" size={20} /> AI Technical Feedback
+            </h3>
+            {loadingFeedback ? (
+              <div className="flex items-center gap-2 text-gray-400 animate-pulse">
+                <RefreshCw size={16} className="animate-spin" /> Analyzing your responses...
               </div>
-            )}
-
-            {/* Loading State */}
-            {loadingQuestions && (
-              <div className="text-center py-20">
-                <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-gray-400">Generating unique interview questions with AI...</p>
-              </div>
-            )}
-
-            {/* Question card */}
-            {!loadingQuestions && questions.length > 0 ? (
-              <div className="bg-white/5 border border-gray-800 rounded-2xl p-6">
-                {/* Timer Bar */}
-                {!submitted && !showWarning && (
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                      <span>Time Left</span>
-                      <span
-                        className={`${timeLeft <= 10 ? "text-red-400" : "text-gray-300"
-                          } font-semibold`}
-                      >
-                        {timeLeft}s
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 transition-all duration-1000 ${timeLeft <= 10 ? "animate-pulse" : ""
-                          }`}
-                        style={{
-                          width: `${Math.max(0, (timeLeft / QUESTION_TIME) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between mb-4 text-sm text-gray-400">
-                  <div>
-                    Question {currentIndex + 1} of {questions.length}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      disabled={!canPrev}
-                      onClick={() => canPrev && setCurrentIndex((i) => i - 1)}
-                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${canPrev
-                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                        : "border-gray-800 opacity-50 cursor-not-allowed"
-                        }`}
-                    >
-                      <ChevronLeft size={16} /> Prev
-                    </button>
-                    <button
-                      disabled={!canNext}
-                      onClick={() => canNext && setCurrentIndex((i) => i + 1)}
-                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${canNext
-                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                        : "border-gray-800 opacity-50 cursor-not-allowed"
-                        }`}
-                    >
-                      Next <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Prompt */}
-                <h2 className="text-lg font-semibold mb-4">{current?.prompt}</h2>
-
-                {/* MCQ Mode */}
-                {mode === "mcq" && (
-                  <div className="space-y-3">
-                    {(() => {
-                      const map = optionMap[current.id] || {
-                        order: [...current.options.keys()],
-                        answerIndex: current.answerIndex,
-                      };
-                      return map.order.map((origIdx, idx) => {
-                        const opt = current.options[origIdx];
-                        const selected = answers[current.id] === idx;
-                        const reveal = questionSubmitted[current.id];
-                        const correctIndex = map.answerIndex;
-                        const isCorrect = reveal && idx === correctIndex;
-                        const isWrong = reveal && selected && idx !== correctIndex;
-                        return (
-                          <button
-                            key={idx}
-                            disabled={reveal}
-                            onClick={() => handleAnswer(current.id, idx)}
-                            className={`cursor-pointer w-full text-left px-4 py-3 rounded-lg border transition ${selected
-                              ? "border-purple-500/60 bg-purple-500/10"
-                              : "border-gray-700 hover:bg-white/5"
-                              } ${isCorrect ? "!border-green-500/60 bg-green-500/10" : ""} ${isWrong ? "!border-red-500/60 bg-red-500/10" : ""
-                              }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span>{opt}</span>
-                              {reveal && isCorrect && (
-                                <CheckCircle2 className="text-green-400" size={18} />
-                              )}
-                              {reveal && isWrong && (
-                                <XCircle className="text-red-400" size={18} />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      });
-                    })()}
-
-                    {/* Submit Button for MCQ */}
-                    {!questionSubmitted[current.id] && (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={submitCurrentQuestion}
-                        disabled={answers[current.id] === undefined}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
-                      >
-                        <CheckCircle2 size={20} />
-                        Submit Answer
-                      </motion.button>
-                    )}
-
-                    {questionSubmitted[current.id] && current.explanation && (
-                      <div className="mt-3 text-sm text-gray-300 bg-white/5 border border-gray-700 rounded-lg p-3">
-                        <span className="text-gray-400">Explanation: </span>
-                        {current.explanation}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Coding Mode */}
-                {mode === "coding" && (
-                  <div className="space-y-3">
-                    <textarea
-                      rows={10}
-                      className="w-full rounded-lg bg-black/40 border border-gray-700 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
-                      placeholder={current.starter || "Write your solution here..."}
-                      value={answers[current.id] || ""}
-                      onChange={(e) => handleAnswer(current.id, e.target.value)}
-                      disabled={questionSubmitted[current.id]}
-                    />
-                    {Array.isArray(current.rubric) && (
-                      <div className="text-sm text-gray-400">
-                        <span className="block mb-1 text-gray-300">Consider:</span>
-                        <ul className="list-disc ml-5">
-                          {current.rubric.map((r, i) => (
-                            <li key={i}>{r}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {!questionSubmitted[current.id] && (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={submitCurrentQuestion}
-                        disabled={
-                          !answers[current.id] ||
-                          answers[current.id].trim().length < 10
-                        }
-                        className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle2 size={20} />
-                        Submit Code
-                      </motion.button>
-                    )}
-                  </div>
-                )}
-
-                {/* Technical Mode */}
-                {mode === "technical" && (
-                  <div className="space-y-3">
-                    <textarea
-                      rows={6}
-                      className="w-full rounded-lg bg-black/40 border border-gray-700 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
-                      placeholder={current.placeholder || "Type your answer..."}
-                      value={answers[current.id] || ""}
-                      onChange={(e) => handleAnswer(current.id, e.target.value)}
-                      disabled={questionSubmitted[current.id]}
-                    />
-                    {Array.isArray(current.checklist) && (
-                      <div className="text-sm text-gray-400">
-                        <span className="block mb-1 text-gray-300">Checklist:</span>
-                        <ul className="list-disc ml-5">
-                          {current.checklist.map((r, i) => (
-                            <li key={i}>{r}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {!questionSubmitted[current.id] && (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={submitCurrentQuestion}
-                        disabled={
-                          !answers[current.id] ||
-                          answers[current.id].trim().length < 20
-                        }
-                        className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle2 size={20} />
-                        Submit Answer
-                      </motion.button>
-                    )}
-                  </div>
-                )}
-
-                {/* Footer controls */}
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex gap-2">
-                    <button
-                      disabled={!canPrev}
-                      onClick={() => canPrev && setCurrentIndex((i) => i - 1)}
-                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${canPrev
-                        ? "border-gray-700 hover:bg-white/5 cursor-pointer"
-                        : "border-gray-800 opacity-50 cursor-not-allowed"
-                        }`}
-                    >
-                      <ChevronLeft size={16} /> Previous
-                    </button>
-                    <button
-                      disabled={!canNext}
-                      onClick={() => {
-                        if (!questionSubmitted[current.id]) submitCurrentQuestion();
-                        if (canNext) setCurrentIndex((i) => i + 1);
-                      }}
-                      className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${canNext
-                        ? "border-gray-700 hover:bg.white/5 cursor-pointer"
-                        : "border-gray-800 opacity-50 cursor-not-allowed"
-                        }`}
-                    >
-                      Next <ChevronRight size={16} />
-                    </button>
-                  </div>
-
-                  <div className="flex gap-2">
-                    {submitted && (
-                      <>
-                        <button
-                          onClick={() => {
-                            const el = document.getElementById("results-block");
-                            if (el)
-                              el.scrollIntoView({ behavior: "smooth", block: "start" });
-                          }}
-                          className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 hover:bg-white/5"
-                        >
-                          View Results
-                        </button>
-                        <button
-                          onClick={restart}
-                          className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 hover:bg-white/5"
-                        >
-                          <RotateCcw size={16} /> Try Again
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : mode ? (
-              <InterviewRoomSkeleton />
             ) : (
-              <div className="text-gray-400">
-                No questions found for this selection.
-              </div>
-            )}
-
-            {/* Results */}
-            {submitted && (
-              <div
-                id="results-block"
-                className="mt-6 bg-white/5 border border-gray-800 rounded-2xl p-6"
-              >
-                <h3 className="text-lg font-semibold mb-2">Results</h3>
-                {mode === "mcq" &&
-                  (() => {
-                    let correct = 0;
-                    questions.forEach((q) => {
-                      const map = optionMap[q.id] || {
-                        answerIndex: q.answerIndex,
-                      };
-                      if (
-                        typeof answers[q.id] === "number" &&
-                        answers[q.id] === map.answerIndex
-                      )
-                        correct += 1;
-                    });
-                    const percent = Math.round((correct / questions.length) * 100);
-                    return (
-                      <div className="text-gray-300">
-                        Score:{" "}
-                        <span className="text-purple-300 font-semibold">
-                          {correct}/{questions.length}
-                        </span>{" "}
-                        ({percent}%)
-                      </div>
-                    );
-                  })()}
-                {mode !== "mcq" && (
-                  <div className="text-gray-400 text-sm">
-                    Submitted. Review your answers against the checklist/rubric above.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Post-Interview Report */}
-            {submitted &&
-              (() => {
-                const rptRaw = (() => {
-                  try {
-                    return JSON.parse(
-                      localStorage.getItem("last_report_v1") || "null"
-                    );
-                  } catch {
-                    return null;
-                  }
-                })();
-                const scores = rptRaw?.scores || {
-                  correctness: 0,
-                  clarity: 0,
-                  structure: 0,
-                };
-                const strengths = rptRaw?.strengths || [];
-                const weaknesses = rptRaw?.weaknesses || [];
-                const resources = rptRaw?.resources || [];
-                const Bar = ({ value }) => (
-                  <div className="w-full h-2 bg-gray-800 rounded overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-cyan-400"
-                      style={{ width: `${value}%` }}
-                    />
-                  </div>
-                );
-                return (
-                  <div className="mt-6 bg-white/5 border border-gray-800 rounded-2xl p-6">
-                    <h3 className="text-lg font-semibold mb-4">
-                      Post-Interview Report
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Correctness</span>
-                          <span>{scores.correctness}%</span>
-                        </div>
-                        <Bar value={scores.correctness} />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Clarity</span>
-                          <span>{scores.clarity}%</span>
-                        </div>
-                        <Bar value={scores.clarity} />
-                      </div>
-                      <div>
-                        <div className="flex items.center justify-between text-sm mb-1">
-                          <span>Structure</span>
-                          <span>{scores.structure}%</span>
-                        </div>
-                        <Bar value={scores.structure} />
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4 mt-6">
-                      <div className="bg-white/5 border border-gray-800 rounded-xl p-4">
-                        <div className="font-semibold.mb-2">Strengths</div>
-                        {strengths.length === 0 ? (
-                          <div className="text-gray-400 text-sm">
-                            No strong areas yet. Keep practicing!
-                          </div>
-                        ) : (
-                          <ul className="list-disc ml-5 text-sm">
-                            {strengths.map((s, i) => (
-                              <li key={i}>{s}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                      <div className="bg-white/5 border border-gray-800 rounded-xl p-4">
-                        <div className="font-semibold mb-2">Weaknesses</div>
-                        {weaknesses.length === 0 ? (
-                          <div className="text-gray-400 text-sm">
-                            Great balance across dimensions.
-                          </div>
-                        ) : (
-                          <ul className="list-disc ml-5 text-sm">
-                            {weaknesses.map((w, i) => (
-                              <li key={i}>{w}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                    {resources.length > 0 && (
-                      <div className="mt-6">
-                        <div className="font-semibold mb-2">Suggested Resources</div>
-                        <ul className="list-disc ml-5.text-sm space-y-1">
-                          {resources.map((r, i) => (
-                            <li key={i}>
-                              <a
-                                className="text-blue-400 hover:text-blue-300 underline"
-                                href={r.url}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                {r.title}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-            {/* Practice Plan Preview */}
-            {submitted &&
-              (() => {
-                const plan = (() => {
-                  try {
-                    return JSON.parse(
-                      localStorage.getItem("practice_plan_v1") || "null"
-                    );
-                  } catch {
-                    return null;
-                  }
-                })();
-                if (!plan?.entries?.length) return null;
-                return (
-                  <div className="mt-6 bg-white/5 border border-gray-800 rounded-2xl p-6">
-                    <h3 className="text-lg font-semibold mb-3">
-                      Practice Plan (Spaced Repetition)
-                    </h3>
-                    <div className="text-sm text-gray-300 mb-3">
-                      We scheduled quick drills for your weak topics.
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      {plan.entries.map((e, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-black/30 border border-gray-800 rounded-xl p-3"
-                        >
-                          <div className="font-semibold mb-2">{e.topic}</div>
-                          <ul className="space-y-1">
-                            {e.due.map((d, i) => (
-                              <li key={i} className="text-gray-400">
-                                Session {i + 1}: {new Date(d).toLocaleDateString()}{" "}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-            {/* AI-Powered Feedback Section */}
-            {submitted && (
-              <div className="mt-6">
-                <AIFeedbackReport feedback={aiFeedback} loading={loadingFeedback} />
-              </div>
+              <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{aiFeedback}</p>
             )}
           </div>
-        )}
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/interview")}
+              className="flex-1 py-4 bg-white text-black font-bold rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+            >
+              Take Another Test <ArrowRight size={18} />
+            </button>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-all"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const currentQ = questions[currentIndex];
+
+  return (
+    <div className="min-h-screen bg-[#050505] text-white pt-32 px-6">
+      <div className="max-w-4xl mx-auto">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2 uppercase tracking-widest text-blue-400">{assessmentTitle}</h1>
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span className="flex items-center gap-1"><BrainCircuit size={16} /> Question {currentIndex + 1} of {questions.length}</span>
+              <span className="flex items-center gap-1"><Bot size={16} /> AI Proctor: Active</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+             <div className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center min-w-[120px]">
+                <span className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">Time Remaining</span>
+                <div className={`text-2xl font-mono font-bold ${timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                  00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                </div>
+             </div>
+          </div>
+        </header>
+
+        {/* Progress Bar */}
+        <div className="w-full h-1 bg-white/5 rounded-full mb-12 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+            className="h-full bg-blue-500"
+          />
+        </div>
+
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-12 mb-8 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 text-6xl font-bold text-white/5 select-none font-mono">
+            Q{currentIndex + 1}
+          </div>
+
+          <h2 className="text-2xl font-bold mb-10 leading-relaxed pr-12">
+            {currentQ?.prompt}
+          </h2>
+
+          <div className="grid gap-4">
+            {currentQ?.options?.map((option, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSelect(idx)}
+                className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 flex items-center justify-between group ${
+                  answers[currentIndex] === idx
+                  ? "bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-500/10"
+                  : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10"
+                }`}
+              >
+                <div className="flex items-center gap-6">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                    answers[currentIndex] === idx ? "bg-blue-500 text-white" : "bg-white/10 text-gray-400 group-hover:bg-white/20"
+                  }`}>
+                    {String.fromCharCode(65 + idx)}
+                  </div>
+                  <span className={`text-lg transition-colors ${answers[currentIndex] === idx ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>
+                    {option}
+                  </span>
+                </div>
+                {answers[currentIndex] === idx && <CheckCircle2 className="text-blue-500" size={24} />}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        <div className="flex items-center justify-between py-6">
+          <button
+            onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
+            disabled={currentIndex === 0}
+            className="flex items-center gap-2 px-6 py-3 text-gray-500 font-bold hover:text-white disabled:opacity-0 transition-all font-mono"
+          >
+            <ChevronLeft size={20} /> PREVIOUS_STEP
+          </button>
+          
+          <button
+            onClick={handleNext}
+            disabled={answers[currentIndex] === undefined}
+            className="flex items-center gap-3 px-10 py-5 bg-white text-black font-bold rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-xl shadow-white/5 disabled:opacity-50 disabled:grayscale font-mono"
+          >
+            {currentIndex === questions.length - 1 ? "FINISH_ASSESSMENT" : "NEXT_QUESTION"} <ArrowRight size={20} />
+          </button>
+        </div>
+
+        <div className="mt-12 flex items-start gap-4 p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
+          <AlertCircle className="text-blue-400 shrink-0 mt-1" size={18} />
+          <p className="text-xs text-blue-400/80 leading-relaxed font-mono">
+            [SYS_LOG]: Monitoring candidate response patterns. Time limit is strictly enforced. Ensure you select the most optimal answer choice for maximum accuracy score.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,23 +1,42 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
-  Loader,
+  Cpu,
   Sparkles,
-  CheckCircle,
-  XCircle,
-  TrendingUp,
-  AlertCircle,
-  FileText,
+  Zap,
   Target,
   BarChart3,
-  Shield,
-  Eye,
-  AlertTriangle,
-  FileCheck,
-  Download,
+  ShieldCheck,
+  FileText,
+  AlertCircle,
+  ChevronRight,
   RefreshCw,
+  Award,
+  TrendingUp,
+  Brain,
+  Rocket
 } from "lucide-react";
+
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 hover:border-white/20 transition-all ${className}`}>
+    {children}
+  </div>
+);
+
+const Badge = ({ children, color = "blue" }) => {
+  const colors = {
+    blue: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    purple: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    green: "bg-green-500/20 text-green-400 border-green-500/30",
+    red: "bg-red-500/20 text-red-400 border-red-500/30",
+  };
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${colors[color]}`}>
+      {children}
+    </span>
+  );
+};
 
 export default function ResumeAnalyzerUI({
   file,
@@ -31,750 +50,330 @@ export default function ResumeAnalyzerUI({
   onReset,
   onNavigateToRoadmap,
   getScoreColor,
-  getScoreBg,
   getATSScoreColor,
-  getATSScoreBg,
 }) {
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && (droppedFile.type === "application/pdf" || 
-        droppedFile.name.endsWith(".doc") || 
-        droppedFile.name.endsWith(".docx"))) {
-      onFileChange(droppedFile);
-    }
-  };
-
-  const handleFileInputChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      onFileChange(selectedFile);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30">
+      {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px] animate-pulse delay-700" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 py-24">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12 text-center"
-        >
+      <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
+        {/* Header Section */}
+        <header className="mb-20 text-center max-w-3xl mx-auto">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="flex items-center justify-center gap-3 mb-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-blue-400 text-sm font-medium mb-6"
           >
-            <div className="relative">
-              <Sparkles className="text-blue-400" size={48} />
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 border-2 border-blue-400/30 rounded-full"
-              />
-            </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-              ATS Resume Analyzer
-            </h1>
+            <Cpu size={16} />
+            <span>Powered by Llama Intelligence</span>
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed"
-          >
-            Get comprehensive ATS compatibility analysis with real-time scoring,
-            keyword optimization, and actionable insights to land more interviews.
-          </motion.p>
-        </motion.div>
-
-        {/* Upload Section */}
-        {!analysis && (
-          <motion.div
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
+            className="text-5xl lg:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent"
           >
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`relative p-10 rounded-3xl shadow-2xl backdrop-blur-xl border-2 transition-all duration-300 ${
-                isDragging
-                  ? "bg-blue-500/20 border-blue-400 scale-105"
-                  : "bg-white/5 border-white/10 hover:border-white/20"
-              }`}
-            >
-              {/* Upload Area */}
-              <div className="text-center mb-6">
-                <motion.div
-                  animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
-                  className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-2 border-blue-400/30 mb-4"
-                >
-                  <Upload
-                    className={`${isDragging ? "text-blue-400" : "text-gray-400"}`}
-                    size={40}
-                  />
-                </motion.div>
-                <h3 className="text-2xl font-bold mb-2">Upload Your Resume</h3>
-                <p className="text-gray-400 mb-4">
-                  Drag and drop your resume here, or click to browse
-                </p>
-                <p className="text-sm text-gray-500">
-                  Supports PDF, DOC, DOCX files (Max 5MB)
-                </p>
-              </div>
+            Resume Intelligence <br />
+            <span className="text-blue-500">Engine</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-gray-400 text-lg lg:text-xl"
+          >
+            Deep document parsing and strategic career analysis using state-of-the-art 
+            Llama models. Decode your market value in seconds.
+          </motion.p>
+        </header>
 
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileInputChange}
-                className="hidden"
-                id="resume-upload"
-              />
-              <label
-                htmlFor="resume-upload"
-                className="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg transition-all cursor-pointer text-center"
+        <AnimatePresence mode="wait">
+          {!analysis ? (
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="max-w-2xl mx-auto"
+            >
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const f = e.dataTransfer.files[0];
+                  if (f) onFileChange(f);
+                }}
+                className={`relative group rounded-[32px] p-12 border-2 border-dashed transition-all duration-500 ${
+                  isDragging ? "bg-blue-600/10 border-blue-500 scale-105" : "bg-white/5 border-white/10 hover:border-white/20"
+                }`}
               >
-                <FileCheck className="inline-block mr-2" size={20} />
-                Choose File
-              </label>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 rounded-[30px] opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10 text-center">
+                  <div className="w-20 h-20 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                    <Upload className="text-blue-400" size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3">Upload Professional Resume</h3>
+                  <p className="text-gray-400 mb-8 max-w-sm mx-auto">
+                    Strictly accepts <span className="text-white font-bold">PDF, DOCX or DOC</span>. 
+                    Unsupported formats will be rejected by the Llama Intelligence core.
+                  </p>
+
+                  <input
+                    type="file"
+                    className="hidden"
+                    id="resume-file"
+                    onChange={(e) => onFileChange(e.target.files[0])}
+                    accept=".pdf,.doc,.docx"
+                  />
+                  <label
+                    htmlFor="resume-file"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-2xl hover:bg-blue-500 hover:text-white transition-all cursor-pointer shadow-xl shadow-white/5"
+                  >
+                    Select Resume File <ChevronRight size={18} />
+                  </label>
+                </div>
+              </div>
 
               {file && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700/50"
+                  className="mt-6 flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <FileText className="text-blue-400" size={24} />
-                      <div>
-                        <p className="font-medium text-white">{file.name}</p>
-                        <p className="text-sm text-gray-400">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-xl">
+                      <FileText className="text-blue-400" />
                     </div>
-                    <button
-                      onClick={() => onFileChange(null)}
-                      className="text-gray-400 hover:text-red-400 transition-colors"
-                    >
-                      <XCircle size={20} />
-                    </button>
+                    <div>
+                      <p className="font-semibold text-sm">{file.name}</p>
+                      <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                    </div>
                   </div>
+                  <button onClick={() => onFileChange(null)} className="text-gray-500 hover:text-red-400">
+                    Remove
+                  </button>
                 </motion.div>
               )}
 
               <button
                 onClick={onUpload}
-                disabled={loading || !file}
-                className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white rounded-xl font-bold shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg transform hover:scale-105 active:scale-95"
+                disabled={!file || loading}
+                className="w-full mt-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-2xl shadow-blue-600/20"
               >
                 {loading ? (
-                  <>
-                    <Loader className="animate-spin" size={24} />
-                    <span>Analyzing Resume...</span>
-                  </>
+                  <RefreshCw className="animate-spin" size={24} />
                 ) : (
                   <>
-                    <Sparkles size={24} />
-                    <span>Analyze Resume</span>
+                    <Zap size={24} />
+                    <span>Initialize Deep Analysis</span>
                   </>
                 )}
               </button>
 
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-4 p-4 bg-red-500/10 border-2 border-red-500/30 rounded-xl text-red-400 text-sm backdrop-blur-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle size={18} />
-                    <span>{error}</span>
-                  </div>
-                </motion.div>
+                <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400">
+                  <AlertCircle size={20} />
+                  <p className="text-sm">{error}</p>
+                </div>
               )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Analysis Results */}
-        {analysis && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
-            {/* Main Score Cards */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Overall Resume Score */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-8 border border-white/10 shadow-2xl overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <Target className="text-blue-400" size={28} />
-                        Overall Resume Score
-                      </h3>
-                      <p className="text-gray-300 text-sm leading-relaxed">
-                        {analysis.summary}
-                      </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-8"
+            >
+              {/* Score Dashboard */}
+              <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 flex flex-col justify-between">
+                  <div className="flex justify-between items-start mb-8">
+                    <div>
+                      <h2 className="text-3xl font-bold mb-2">Strategy Assessment</h2>
+                      <p className="text-gray-400">{analysis.summary}</p>
                     </div>
-                    <div className="text-center ml-6">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3, type: "spring" }}
-                        className={`text-7xl font-extrabold ${getScoreColor(
-                          analysis.score
-                        )}`}
-                      >
+                    <div className="text-right">
+                      <div className={`text-6xl font-bold ${getScoreColor(analysis.score)}`}>
                         {analysis.score}
-                      </motion.div>
-                      <div className="text-gray-400 text-sm mt-1">out of 100</div>
+                      </div>
+                      <p className="text-gray-500 text-sm uppercase tracking-widest mt-1">Strategic Index</p>
                     </div>
                   </div>
-                  <div className="w-full h-4 bg-gray-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${analysis.score}%` }}
-                      transition={{ duration: 1.2, ease: "easeOut" }}
-                      className={`h-full bg-gradient-to-r ${getScoreBg(
-                        analysis.score
-                      )} shadow-lg`}
+                      className="h-full bg-blue-500"
                     />
                   </div>
-                </div>
-              </motion.div>
+                </Card>
 
-              {/* ATS Compatibility Score */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-8 border border-white/10 shadow-2xl overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <Shield className="text-green-400" size={28} />
-                        ATS Compatibility
+                <Card className="flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mb-4">
+                    <ShieldCheck className="text-purple-400" size={32} />
+                  </div>
+                  <div className={`text-4xl font-bold mb-1 ${getATSScoreColor(analysis.atsAnalysis?.score)}`}>
+                    {analysis.atsAnalysis?.score}%
+                  </div>
+                  <p className="text-gray-400 font-medium">ATS Resilience</p>
+                  <p className="text-xs text-gray-500 mt-2 italic px-4">"{analysis.atsAnalysis?.feedback?.slice(0, 80)}..."</p>
+                </Card>
+              </div>
+
+              {/* Core Attributes */}
+              <div className="grid md:grid-cols-4 gap-4">
+                {[
+                  { icon: Target, label: "Target Role", value: analysis.detectedRole, color: "blue" },
+                  { icon: Award, label: "Experience", value: analysis.experienceLevel, color: "purple" },
+                  { icon: TrendingUp, label: "Market Fit", value: analysis.industryInsights?.marketCompetitiveness, color: "green" },
+                  { icon: Brain, label: "Intelligence", value: "Verified", color: "blue" }
+                ].map((item, i) => (
+                  <Card key={i} className="flex flex-col items-center text-center py-4">
+                    <item.icon className="text-gray-500 mb-2" size={20} />
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-tighter">{item.label}</p>
+                    <p className="font-bold text-sm">{item.value}</p>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Detail Tabs */}
+              <div className="flex gap-4 overflow-x-auto pb-4 sticky top-24 z-20 bg-[#050505]/80 backdrop-blur-md py-2">
+                {["Overview", "Keywords", "Roadmap", "Market"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab.toLowerCase())}
+                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
+                      activeTab === tab.toLowerCase() ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab Content */}
+              <div className="min-h-[400px]">
+                {activeTab === "overview" && (
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-bold flex items-center gap-2">
+                        <Sparkles className="text-blue-400" size={20} /> Strategic Assets
                       </h3>
-                      <p className="text-gray-300 text-sm">
-                        Applicant Tracking System Score
-                      </p>
-                    </div>
-                    <div className="text-center ml-6">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.4, type: "spring" }}
-                        className={`text-7xl font-extrabold ${getATSScoreColor(
-                          analysis.atsCompatibility || analysis.atsAnalysis?.score
-                        )}`}
-                      >
-                        {analysis.atsCompatibility || analysis.atsAnalysis?.score}
-                      </motion.div>
-                      <div className="text-gray-400 text-sm mt-1">out of 100</div>
-                    </div>
-                  </div>
-                  <div className="w-full h-4 bg-gray-700/50 rounded-full overflow-hidden backdrop-blur-sm">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${
-                          analysis.atsCompatibility || analysis.atsAnalysis?.score
-                        }%`,
-                      }}
-                      transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-                      className={`h-full bg-gradient-to-r ${getATSScoreBg(
-                        analysis.atsCompatibility || analysis.atsAnalysis?.score
-                      )} shadow-lg`}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* ATS Score Breakdown */}
-            {analysis.atsAnalysis?.breakdown && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl"
-              >
-                <h4 className="font-bold mb-6 flex items-center gap-3 text-xl">
-                  <BarChart3 className="text-purple-400" size={24} />
-                  ATS Score Breakdown
-                </h4>
-                <div className="grid md:grid-cols-5 gap-4">
-                  {Object.entries(analysis.atsAnalysis.breakdown).map(
-                    ([category, score], index) => {
-                      const maxScore = {
-                        formatting: 20,
-                        keywords: 25,
-                        structure: 20,
-                        content: 25,
-                        contact: 10,
-                      }[category] || 20;
-                      const percentage = (score / maxScore) * 100;
-                      return (
-                        <motion.div
-                          key={category}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + index * 0.1 }}
-                          className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50 hover:border-gray-600 transition-all hover:scale-105"
-                        >
-                          <div className="text-sm text-gray-400 mb-3 capitalize font-medium">
-                            {category}
+                      <div className="space-y-3">
+                        {analysis.strengths?.map((s, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+                            <p className="text-sm text-gray-300">{s}</p>
                           </div>
-                          <div className="text-3xl font-bold text-white mb-3">
-                            {score}/{maxScore}
-                          </div>
-                          <div className="w-full h-3 bg-gray-700/50 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${percentage}%` }}
-                              transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                              className={`h-full ${
-                                percentage >= 80
-                                  ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                                  : percentage >= 60
-                                  ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                                  : "bg-gradient-to-r from-red-500 to-rose-500"
-                              } shadow-lg`}
-                            />
-                          </div>
-                        </motion.div>
-                      );
-                    }
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Tab Navigation */}
-            <div className="flex gap-2 border-b-2 border-gray-700/50 overflow-x-auto">
-              {[
-                { id: "overview", label: "Overview", icon: Eye },
-                { id: "ats", label: "ATS Analysis", icon: Shield },
-                { id: "strengths", label: "Strengths", icon: CheckCircle },
-                { id: "weaknesses", label: "Weaknesses", icon: XCircle },
-                { id: "improvements", label: "Improvements", icon: TrendingUp },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? "text-blue-400 border-b-2 border-blue-400 bg-blue-500/5"
-                      : "text-gray-400 hover:text-gray-300 hover:bg-white/5"
-                  }`}
-                >
-                  <tab.icon size={18} />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab Content */}
-            <div className="min-h-[500px]">
-              {/* Overview Tab */}
-              {activeTab === "overview" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-6"
-                >
-                  {/* Role Detection */}
-                  <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl">
-                    <h4 className="font-bold mb-6 flex items-center gap-3 text-xl">
-                      <Target className="text-blue-400" size={24} />
-                      Detected Role & Experience
-                    </h4>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {[
-                        {
-                          label: "Role",
-                          value: analysis.detectedRole || "Software Developer",
-                        },
-                        {
-                          label: "Experience Level",
-                          value: analysis.experienceLevel || "Entry Level",
-                        },
-                        {
-                          label: "Market Competitiveness",
-                          value: analysis.marketCompetitiveness || "Moderate",
-                        },
-                      ].map((item, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-5 border border-gray-700/50 hover:border-blue-500/50 transition-all"
-                        >
-                          <div className="text-sm text-gray-400 mb-2 font-medium">
-                            {item.label}
-                          </div>
-                          <div className="text-xl font-bold text-white">
-                            {item.value}
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Section Analysis */}
-                  {analysis.sections && (
-                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl">
-                      <h4 className="font-bold mb-6 flex items-center gap-3 text-xl">
-                        <FileText className="text-purple-400" size={24} />
-                        Section-by-Section Analysis
-                      </h4>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {Object.entries(analysis.sections).map(
-                          ([section, feedback], i) => (
-                            <motion.div
-                              key={section}
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.1 }}
-                              className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50 hover:border-purple-500/50 transition-all"
-                            >
-                              <div className="font-semibold capitalize mb-2 text-purple-300 text-lg">
-                                {section}
-                              </div>
-                              <div className="text-sm text-gray-400 leading-relaxed">
-                                {feedback}
-                              </div>
-                            </motion.div>
-                          )
-                        )}
+                        ))}
                       </div>
                     </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* ATS Analysis Tab */}
-              {activeTab === "ats" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-6"
-                >
-                  {/* ATS Issues */}
-                  {analysis.atsAnalysis?.issues && (
-                    <div className="bg-red-500/10 backdrop-blur-xl border-2 border-red-500/30 rounded-2xl p-8 shadow-xl">
-                      <h4 className="font-bold mb-6 flex items-center gap-3 text-red-300 text-xl">
-                        <AlertTriangle className="text-red-400" size={24} />
-                        ATS Compatibility Issues
-                      </h4>
-                      <ul className="space-y-3">
-                        {analysis.atsAnalysis.issues.map((issue, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="text-sm text-gray-300 flex items-start gap-3 bg-gray-800/30 p-4 rounded-xl border border-red-500/20"
-                          >
-                            <span className="text-red-400 mt-1 font-bold">•</span>
-                            <span className="flex-1">{issue}</span>
-                          </motion.li>
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-bold flex items-center gap-2 text-red-400">
+                        <AlertCircle size={20} /> Optimization Required
+                      </h3>
+                      <div className="space-y-3">
+                        {analysis.weaknesses?.map((w, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 bg-red-500/5 rounded-2xl border border-red-500/10">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                            <p className="text-sm text-gray-300">{w}</p>
+                          </div>
                         ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* ATS Recommendations */}
-                  {analysis.atsAnalysis?.recommendations && (
-                    <div className="bg-blue-500/10 backdrop-blur-xl border-2 border-blue-500/30 rounded-2xl p-8 shadow-xl">
-                      <h4 className="font-bold mb-6 flex items-center gap-3 text-blue-300 text-xl">
-                        <AlertCircle className="text-blue-400" size={24} />
-                        ATS Optimization Recommendations
-                      </h4>
-                      <ul className="space-y-4">
-                        {analysis.atsAnalysis.recommendations.map((rec, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="text-sm text-gray-300 flex items-start gap-4 bg-gray-800/30 p-4 rounded-xl border border-blue-500/20"
-                          >
-                            <span className="text-blue-400 font-bold text-lg">
-                              {i + 1}.
-                            </span>
-                            <span className="flex-1">{rec}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Keyword Analysis */}
-                  {analysis.keywords && (
-                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl">
-                      <h4 className="font-bold mb-6 text-xl">Keyword Analysis</h4>
-                      <div className="grid md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                          <div className="text-sm text-gray-400 mb-3 font-medium">
-                            Present Keywords
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {analysis.keywords.present?.map((kw, i) => (
-                              <motion.span
-                                key={i}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-300 font-medium"
-                              >
-                                {kw}
-                              </motion.span>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-gray-400 mb-3 font-medium">
-                            Missing Keywords
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {analysis.keywords.missing?.map((kw, i) => (
-                              <motion.span
-                                key={i}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-xs text-red-300 font-medium"
-                              >
-                                {kw}
-                              </motion.span>
-                            ))}
-                          </div>
-                        </div>
                       </div>
-                      {analysis.keywords.recommended && (
-                        <div>
-                          <div className="text-sm text-gray-400 mb-3 font-medium">
-                            Recommended Keywords
-                          </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "keywords" && (
+                  <Card className="space-y-8">
+                    <div>
+                      <h4 className="text-gray-400 text-sm mb-4">Detected Industry Keywords</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {analysis.keywords?.present?.map((kw, i) => (
+                          <Badge key={i} color="blue">{kw}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-gray-400 text-sm mb-4">Critical Missing Targets</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {analysis.keywords?.missing?.map((kw, i) => (
+                          <Badge key={i} color="red">{kw}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {activeTab === "roadmap" && (
+                  <div className="space-y-4">
+                    {analysis.roadmap?.map((phase, i) => (
+                      <Card key={i} className="flex gap-6 items-start">
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center flex-shrink-0 text-blue-400 font-bold">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold mb-1">{phase.title}</h4>
+                          <p className="text-gray-400 text-sm mb-4">{phase.desc}</p>
                           <div className="flex flex-wrap gap-2">
-                            {analysis.keywords.recommended.map((kw, i) => (
-                              <motion.span
-                                key={i}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="px-3 py-1.5 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-xs text-yellow-300 font-medium"
-                              >
-                                {kw}
-                              </motion.span>
+                            {phase.milestones?.map((m, j) => (
+                              <Badge key={j} color="purple">{m}</Badge>
                             ))}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Strengths Tab */}
-              {activeTab === "strengths" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-green-500/10 backdrop-blur-xl border-2 border-green-500/30 rounded-2xl p-8 shadow-xl"
-                >
-                  <h4 className="font-bold mb-6 flex items-center gap-3 text-green-300 text-xl">
-                    <CheckCircle className="text-green-400" size={24} />
-                    Resume Strengths
-                  </h4>
-                  <ul className="space-y-4">
-                    {analysis.strengths?.map((strength, i) => (
-                      <motion.li
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="text-sm text-gray-300 flex items-start gap-4 bg-gray-800/30 p-4 rounded-xl border border-green-500/20"
-                      >
-                        <CheckCircle className="text-green-400 mt-0.5 flex-shrink-0" size={20} />
-                        <span className="flex-1">{strength}</span>
-                      </motion.li>
+                      </Card>
                     ))}
-                  </ul>
-                </motion.div>
-              )}
-
-              {/* Weaknesses Tab */}
-              {activeTab === "weaknesses" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-6"
-                >
-                  {analysis.criticalWeaknesses && (
-                    <div className="bg-red-500/10 backdrop-blur-xl border-2 border-red-500/30 rounded-2xl p-8 shadow-xl">
-                      <h4 className="font-bold mb-6 flex items-center gap-3 text-red-300 text-xl">
-                        <XCircle className="text-red-400" size={24} />
-                        Critical Weaknesses
-                      </h4>
-                      <ul className="space-y-4">
-                        {analysis.criticalWeaknesses.map((weakness, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="text-sm text-gray-300 flex items-start gap-4 bg-gray-800/30 p-4 rounded-xl border border-red-500/20"
-                          >
-                            <XCircle className="text-red-400 mt-0.5 flex-shrink-0" size={20} />
-                            <span className="flex-1">{weakness}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {analysis.minorWeaknesses && (
-                    <div className="bg-yellow-500/10 backdrop-blur-xl border-2 border-yellow-500/30 rounded-2xl p-8 shadow-xl">
-                      <h4 className="font-bold mb-6 flex items-center gap-3 text-yellow-300 text-xl">
-                        <AlertTriangle className="text-yellow-400" size={24} />
-                        Minor Weaknesses
-                      </h4>
-                      <ul className="space-y-4">
-                        {analysis.minorWeaknesses.map((weakness, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="text-sm text-gray-300 flex items-start gap-4 bg-gray-800/30 p-4 rounded-xl border border-yellow-500/20"
-                          >
-                            <span className="text-yellow-400 mt-1 font-bold">•</span>
-                            <span className="flex-1">{weakness}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Improvements Tab */}
-              {activeTab === "improvements" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-blue-500/10 backdrop-blur-xl border-2 border-blue-500/30 rounded-2xl p-8 shadow-xl">
-                    <h4 className="font-bold mb-6 flex items-center gap-3 text-blue-300 text-xl">
-                      <TrendingUp className="text-blue-400" size={24} />
-                      Actionable Improvements
-                    </h4>
-                    <ul className="space-y-4">
-                      {analysis.improvements?.map((improvement, i) => (
-                        <motion.li
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="text-sm text-gray-300 flex items-start gap-4 bg-gray-800/30 p-4 rounded-xl border border-blue-500/20"
-                        >
-                          <span className="text-blue-400 font-bold text-lg">{i + 1}.</span>
-                          <span className="flex-1">{improvement}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
                   </div>
+                )}
 
-                  {analysis.recommendations && (
-                    <div className="bg-purple-500/10 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-8 shadow-xl">
-                      <h4 className="font-bold mb-6 text-purple-300 text-xl">
-                        Expert Recommendations
-                      </h4>
-                      <ul className="space-y-3">
-                        {analysis.recommendations.map((rec, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="text-sm text-gray-300 flex items-start gap-3 bg-gray-800/30 p-4 rounded-xl border border-purple-500/20"
-                          >
-                            <span className="text-purple-400 text-lg">→</span>
-                            <span className="flex-1">{rec}</span>
-                          </motion.li>
+                {activeTab === "market" && (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Card>
+                      <h4 className="text-gray-400 text-sm mb-4">Salary Expectation</h4>
+                      <div className="text-3xl font-bold text-green-400">{analysis.industryInsights?.salaryRange}</div>
+                      <p className="text-xs text-gray-500 mt-2">Adjusted for current market trends and your experience level.</p>
+                    </Card>
+                    <Card>
+                      <h4 className="text-gray-400 text-sm mb-4">Immediate Actions</h4>
+                      <div className="space-y-2">
+                        {analysis.improvements?.map((imp, i) => (
+                          <p key={i} className="text-sm font-medium flex items-center gap-2">
+                            <ChevronRight size={14} className="text-blue-500" /> {imp}
+                          </p>
                         ))}
-                      </ul>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </div>
+                      </div>
+                    </Card>
+                  </div>
+                )}
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onNavigateToRoadmap}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 rounded-xl font-bold shadow-xl transition-all text-white flex items-center gap-2"
-              >
-                <TrendingUp size={20} />
-                View Personalized Roadmap
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onReset}
-                className="px-8 py-4 border-2 border-gray-600 hover:border-gray-500 hover:bg-white/5 rounded-xl font-bold transition-all flex items-center gap-2"
-              >
-                <RefreshCw size={20} />
-                Analyze Another Resume
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
+              {/* Action Bar */}
+              <div className="pt-12 flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={onNavigateToRoadmap}
+                  className="px-10 py-4 bg-white text-black font-bold rounded-2xl hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center gap-2 shadow-2xl shadow-white/5"
+                >
+                  <Rocket size={20} /> Launch Career Map
+                </button>
+                <button
+                  onClick={onReset}
+                  className="px-10 py-4 border border-white/10 rounded-2xl font-bold hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCw size={20} /> Re-parse Document
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
-

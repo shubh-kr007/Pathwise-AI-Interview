@@ -8,10 +8,8 @@ const api = {
       const response = await axiosInstance.get("/api/progress/attempts");
       return response.data;
     } catch (error) {
-      // Fallback to localStorage if API fails
-      console.warn("API call failed, falling back to localStorage:", error.message);
-      const raw = localStorage.getItem("interview_attempts_v1");
-      return raw ? JSON.parse(raw) : [];
+      console.error("API call failed:", error.message);
+      return [];
     }
   },
 
@@ -32,11 +30,7 @@ const api = {
   },
 
   async analyzeResume(formData) {
-    const response = await axiosInstance.post("/api/resume/analyze", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axiosInstance.post("/api/resume/analyze", formData);
     return response.data;
   },
 

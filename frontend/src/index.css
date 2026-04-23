@@ -9,3 +9,10 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+button, 
+a,
+[role="button"],
+.cursor-pointer {
+  cursor: pointer !important;
+}

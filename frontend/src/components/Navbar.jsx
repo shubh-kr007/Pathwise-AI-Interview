@@ -54,38 +54,40 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/40 border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo & Subtitle wrapped and sized */}
-          <div className="flex flex-col justify-center items-start h-full" style={{ minWidth: '120px', maxWidth: '180px' }}>
-            <Link to="/" className="group inline-block cursor-pointer" style={{ textDecoration: 'none' }}>
-              <span className="text-[#43bfc7] font-bold" style={{ fontSize: '1.35rem', letterSpacing: '1.5px', textShadow: '0 2px 8px rgba(38,79,78,0.3)', fontFamily: 'Montserrat, Arial, sans-serif', filter: 'contrast(1.5) brightness(1.2)', lineHeight: 1.1, display: 'block', textAlign: 'left', whiteSpace: 'nowrap' }}>
-                <span className="inline-block transform transition-transform duration-200 group-hover:-rotate-3">Pathwise</span>
+    <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-3xl bg-black/20 border-b border-white/5 transition-all duration-500">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo & Subtitle */}
+          <div className="flex flex-col justify-center items-start h-full shrink-0">
+            <Link to="/" className="group cursor-pointer outline-none flex flex-col gap-0.5">
+              <span className="text-teal-400 font-black leading-none tracking-tighter" style={{ fontSize: '1.75rem', fontFamily: "'Outfit', sans-serif" }}>
+                Pathwise
               </span>
-              <span className="text-[#43bfc7]" style={{ fontSize: '0.75rem', fontWeight: 500, opacity: 0.8, marginTop: '2px', letterSpacing: '1px', fontFamily: 'Montserrat, Arial, sans-serif', lineHeight: 1.1, display: 'block', textAlign: 'left', whiteSpace: 'nowrap' }}>
-                <span className="inline-block transition-colors duration-200 group-hover:opacity-100 group-hover:text-white/90">AI Job Portal</span>
+              <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none" style={{ fontSize: '0.55rem', fontFamily: "'Outfit', sans-serif" }}>
+                AI CAREER FORGE
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-6 ml-auto mr-16">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.to;
               return (
                 <Link
                   key={link.name}
                   to={link.to}
-                  className={`cursor-pointer group relative px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2
-                    ${isActive ? "text-white bg-white/10" : "text-gray-300 hover:text-white hover:bg-white/5"}
+                  className={`cursor-pointer group relative px-4 py-2 transition-all duration-300 flex items-center gap-2.5 font-['Plus_Jakarta_Sans'] font-bold text-sm
+                    ${isActive ? "text-white" : "text-slate-400 hover:text-white"}
                   `}
                 >
-                  {link.icon}
-                  <span className="font-semibold">{link.name}</span>
+                  <span className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-teal-400" : "text-inherit opacity-70 group-hover:opacity-100"}`}>
+                    {link.icon}
+                  </span>
+                  <span className="tracking-tight">{link.name}</span>
                   <span
-                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 
-                    ${isActive ? "w-3/4" : "w-0 group-hover:w-3/4"}`}
+                    className={`absolute -bottom-1 left-4 h-[2px] bg-teal-400 transition-all duration-500 rounded-full
+                    ${isActive ? "right-4" : "right-full group-hover:right-4"}`}
                   ></span>
                 </Link>
               );
@@ -93,22 +95,19 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Account Section */}
-          <div className="hidden lg:flex items-center w-32 justify-end">
-            <div className="w-full flex justify-end">
-              {(!loggedIn && (location.pathname === "/" || location.pathname === "/about")) && (
-                <Link to="/auth">
-                  <button
-                    className="cursor-pointer px-6 py-2.5 rounded-full
-          bg-transparent border border-white/20
-          text-white font-semibold tracking-wide
-          transition-all duration-300
-          hover:bg-white/10
-          hover:border-white/40"
-                  >
-                    Login
-                  </button>
-                </Link>
-              )}
+          <div className="hidden lg:flex items-center justify-end">
+            {(!loggedIn && (location.pathname === "/" || location.pathname === "/about")) && (
+              <Link to="/auth">
+                <button
+                  className="cursor-pointer px-8 py-2.5 rounded-xl
+                    bg-white text-black font-black text-xs uppercase tracking-[0.2em]
+                    transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]
+                    font-['Outfit']"
+                >
+                  Access Portal
+                </button>
+              </Link>
+            )}
               {loggedIn && !isAuthPage && (
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -194,7 +193,6 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-          </div>
 
 
           {/* Mobile Navigation Icons */}

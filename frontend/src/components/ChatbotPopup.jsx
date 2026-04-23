@@ -8,7 +8,8 @@ import { useAuth } from "../context/AuthContext";
 import { findResponse, getQuickLinks, startVoiceInput } from "../utils/chatbotUtils";
 
 
-// --- Default Messages ---
+import { API_BASE } from "../config/api";
+
 const DEFAULT_MESSAGES = [];
 
 
@@ -40,8 +41,31 @@ export default function ChatbotPopup() {
       let greeting = "Good morning";
       if (hour >= 12 && hour < 17) greeting = "Good afternoon";
       else if (hour >= 17) greeting = "Good evening";
+      
+      const systemPrompt = {
+        role: "system",
+        content: `You are InterviewBot, the official AI assistant of Pathwise — an advanced AI-powered career growth and interview preparation platform.
+        
+        Key Pathwise Features You Know About:
+        1. Mock Interviews: Technical MCQ-based assessments for 4 key tracks: Data Analyst (Python/SQL), Full Stack (MERN), Java Developer (Core Java), and DSA (Easy-Medium). 
+        2. Difficulty Tiers: Every test has Easy, Medium, and Hard tiers with AI-generated questions specific to that level.
+        3. Resume Intelligence: Uses LlamaParse to provide deep resume analysis, ATS scores, and personalized 100-point roadmaps.
+        4. Performance Tracking: A dynamic dashboard with historical graphs showing performance trends (ups and downs).
+        5. Personalized Roadmaps: Career paths generated uniquely for every user based on their uploaded resume.
+        
+        Guidelines:
+        - Be professional, encouraging, and concise.
+        - If asked about how Pathwise works, explain the features mentioned above.
+        - Help users with interview tips, resume formatting advice, and general career guidance.`
+      };
+
       pushMessage({ sender: "bot", text: `${greeting}, ${user.name || "there"}! 👋 I'm InterviewBot — ask me about interviews, resumes, or Pathwise features!` });
       setOpen(true);
+
+      // Auto-close after 3 seconds as requested
+      setTimeout(() => {
+        setOpen(false);
+      }, 3000);
     }
   }, [user]);
 
@@ -86,20 +110,27 @@ export default function ChatbotPopup() {
     setInput("");
     setTyping(true);
 
-    setTimeout(async () => {
-      let reply = findResponse(text, user);
+    try {
+      const response = await fetch(`${API_BASE}/api/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ message: text }),
+      });
 
-      // Weather Logic
-      if (text.toLowerCase().includes("weather") || text.toLowerCase().includes("temperature")) {
-        reply = await getWeather();
+      const data = await response.json();
+      if (response.ok && data.response) {
+        pushMessage({ sender: "bot", text: data.response });
+      } else {
+        pushMessage({ sender: "bot", text: "🤔 Sorry, I'm having a bit of trouble thinking right now. Let's try again!" });
       }
-
-      if (!reply)
-        reply = "🤔 Hmm, I didn’t get that. Try asking about interviews, resumes, or Pathwise features.";
-
-      pushMessage({ sender: "bot", text: reply });
+    } catch (error) {
+      pushMessage({ sender: "bot", text: "📡 Connection lost. Please check your internet and try again." });
+    } finally {
       setTyping(false);
-    }, 1000);
+    }
   }
 
   function handleVoiceInput() {
@@ -115,12 +146,12 @@ export default function ChatbotPopup() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10, originX: 1, originY: 1 }}
+            initial={{ opacity: 0, scale: 0.7, y: 50, originX: 1, originY: 1 }}
             animate={{ opacity: 1, scale: 1, y: 0, originX: 1, originY: 1 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10, originX: 1, originY: 1 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute bottom-0 right-0 w-[350px] h-[500px] rounded-2xl shadow-2xl overflow-hidden flex flex-col
-                       bg-gray-900/90 backdrop-blur-xl border border-white/10 ring-1 ring-white/5 origin-bottom-right"
+            exit={{ opacity: 0, scale: 0.7, y: 50, originX: 1, originY: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            className="absolute bottom-0 right-0 w-[350px] h-[500px] rounded-3xl shadow-2xl overflow-hidden flex flex-col
+                       bg-blue-900/10 backdrop-blur-3xl border border-white/10 ring-1 ring-white/5 origin-bottom-right"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border-b border-white/10">
