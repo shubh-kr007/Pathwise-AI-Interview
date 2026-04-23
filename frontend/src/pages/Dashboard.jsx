@@ -599,6 +599,7 @@ export default function Dashboard() {
                               {isImproving ? '+' : ''}{trendPercentage}%
                             </span>
                           </div>
+                          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                             <div
                               className={`h-full ${isImproving ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-rose-500'}`}
                               style={{ width: `${Math.min(100, Math.abs(trendPercentage))}%` }}
