@@ -36,7 +36,7 @@ export default function AuthLayout({
           size: "large",
           shape: "pill",
           text: "continue_with",
-          width: 350,
+          width: 320, // Adjusted to fit max-w-sm with padding
         });
       };
       document.body.appendChild(script);
@@ -217,17 +217,18 @@ export default function AuthLayout({
                 <div className="flex-grow border-t border-slate-800/50"></div>
               </div>
 
-              <div className="space-y-3">
-                <div className="relative group overflow-hidden rounded-xl p-[1px] transition-all duration-300 cursor-pointer">
+               <div className="space-y-3">
+                <div className="relative group overflow-hidden rounded-xl p-[1px] transition-all duration-300 cursor-pointer h-12">
                    {/* Google Brand Gradient Border (Visible on Hover) */}
-                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] transition-opacity duration-300"></div>
+                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] transition-opacity duration-300 pointer-events-none"></div>
                    
-                   <button className="relative w-full h-12 bg-white rounded-[calc(0.75rem-1px)] text-xs font-black uppercase tracking-widest text-black flex items-center justify-center gap-3 transition-all duration-300 group-hover:scale-[1.01] active:scale-[0.98] cursor-pointer">
+                   <div className="relative w-full h-full bg-white rounded-[calc(0.75rem-1px)] text-xs font-black uppercase tracking-widest text-black flex items-center justify-center gap-3 transition-all duration-300 group-hover:scale-[1.01] active:scale-[0.98] pointer-events-none z-10">
                       <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="w-5 h-5" />
                       Continue with Google
-                   </button>
+                   </div>
                    
-                   <div ref={googleBtnRef} className="absolute inset-0 opacity-0 cursor-pointer z-30"></div>
+                   {/* The actual Google Identity Service button (Invisible but clickable) */}
+                   <div ref={googleBtnRef} className="absolute inset-0 opacity-0 cursor-pointer z-50 flex justify-center"></div>
                 </div>
               </div>
 
