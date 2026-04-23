@@ -25,17 +25,23 @@ export default function AuthLayout({
     // Initialize Google Login
     const initGoogle = () => {
       if (window.google?.accounts?.id && parent && parent.children.length === 0) {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: onGoogleSuccess,
-        });
-        window.google.accounts.id.renderButton(parent, {
-          theme: "outline",
-          size: "large",
-          shape: "pill",
-          text: "continue_with",
-          width: 320,
-        });
+        try {
+          console.log("🌐 Initializing Google Identity Services...");
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            callback: onGoogleSuccess,
+          });
+          window.google.accounts.id.renderButton(parent, {
+            theme: "outline",
+            size: "large",
+            shape: "pill",
+            text: "continue_with",
+            width: 320,
+          });
+          console.log("✅ Google Button Rendered.");
+        } catch (err) {
+          console.error("❌ Google Initialization Error:", err);
+        }
       }
     };
 
@@ -43,6 +49,7 @@ export default function AuthLayout({
     if (window.google) {
       initGoogle();
     } else {
+      console.log("⏳ Waiting for Google GIS script...");
       const interval = setInterval(() => {
         if (window.google) {
           initGoogle();
@@ -238,7 +245,10 @@ export default function AuthLayout({
                    </div>
                    
                    {/* The actual Google Identity Service button (Invisible but clickable) */}
-                   <div ref={googleBtnRef} className="absolute inset-0 opacity-0 cursor-pointer z-50 flex justify-center"></div>
+                   <div 
+                    ref={googleBtnRef} 
+                    className="absolute inset-0 opacity-[0.01] cursor-pointer z-50 flex justify-center w-full h-full"
+                   ></div>
                 </div>
               </div>
 
