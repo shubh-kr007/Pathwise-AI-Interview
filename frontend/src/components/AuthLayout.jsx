@@ -21,25 +21,35 @@ export default function AuthLayout({
 
   useEffect(() => {
     const parent = googleBtnRef.current;
-    if (parent && parent.children.length === 0) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        window.google?.accounts.id.initialize({
+    
+    // Initialize Google Login
+    const initGoogle = () => {
+      if (window.google?.accounts?.id && parent && parent.children.length === 0) {
+        window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: onGoogleSuccess,
         });
-        window.google?.accounts.id.renderButton(parent, {
+        window.google.accounts.id.renderButton(parent, {
           theme: "outline",
           size: "large",
           shape: "pill",
           text: "continue_with",
-          width: 320, // Adjusted to fit max-w-sm with padding
+          width: 320,
         });
-      };
-      document.body.appendChild(script);
+      }
+    };
+
+    // If script already loaded, init. Otherwise wait.
+    if (window.google) {
+      initGoogle();
+    } else {
+      const interval = setInterval(() => {
+        if (window.google) {
+          initGoogle();
+          clearInterval(interval);
+        }
+      }, 500);
+      return () => clearInterval(interval);
     }
   }, [onGoogleSuccess]);
 
