@@ -124,7 +124,7 @@ export default function AuthLayout({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="max-w-sm w-full bg-[#0d0d0d] border border-slate-800 shadow-2xl rounded-[2rem] p-8 lg:p-10 backdrop-blur-3xl relative overflow-hidden group"
+              className="max-w-sm w-full bg-[#0d0d0d] border border-slate-800 shadow-2xl rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 backdrop-blur-3xl relative overflow-hidden group"
             >
               {/* ⚡ Perpetual Border Beam (Full Perimeter) */}
               <div className="absolute inset-0 rounded-[2rem] pointer-events-none">
@@ -154,16 +154,16 @@ export default function AuthLayout({
                 />
               </div>
 
-              <div className="mb-8 text-center lg:text-left">
-                <h3 className="text-2xl font-black tracking-tight mb-1">
+              <div className="mb-6 md:mb-8 text-center lg:text-left">
+                <h3 className="text-xl md:text-2xl font-black tracking-tight mb-1">
                   {isLogin ? "Sign in" : "Get Started"}
                 </h3>
-                <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">
+                <p className="text-slate-500 font-bold text-[9px] md:text-[10px] uppercase tracking-widest">
                   Secure Gateway
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
                 {!isLogin && (
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Identity</label>
@@ -173,7 +173,7 @@ export default function AuthLayout({
                       placeholder="Enter Name"
                       value={form.name}
                       onChange={handleChange}
-                      className="w-full px-5 py-3.5 rounded-xl bg-zinc-900 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 transition-all font-bold text-sm"
+                      className="w-full px-4 md:px-5 py-2.5 md:py-3.5 rounded-xl bg-zinc-900 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 transition-all font-bold text-xs md:text-sm"
                       required
                     />
                   </div>
@@ -204,7 +204,7 @@ export default function AuthLayout({
                       placeholder="••••••••"
                       value={form.password}
                       onChange={handleChange}
-                      className="w-full px-5 py-3.5 rounded-xl bg-zinc-900 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 transition-all font-bold text-sm"
+                      className="w-full px-4 md:px-5 py-2.5 md:py-3.5 rounded-xl bg-zinc-900 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 transition-all font-bold text-xs md:text-sm"
                       required
                     />
                     <button
@@ -222,7 +222,7 @@ export default function AuthLayout({
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-4 py-4 bg-teal-600 text-white rounded-xl font-black text-xs uppercase tracking-[0.3em] shadow-xl transition-all duration-300 disabled:opacity-50 cursor-pointer"
+                  className="w-full px-4 py-3 md:py-4 bg-teal-600 text-white rounded-xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-xl transition-all duration-300 disabled:opacity-50 cursor-pointer"
                 >
                   {isLoading ? "Validating..." : "Continue"}
                 </motion.button>

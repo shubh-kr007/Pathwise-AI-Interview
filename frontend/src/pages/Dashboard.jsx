@@ -122,7 +122,7 @@ const itemVariants = {
 const DashboardCard = ({ children, className }) => (
   <motion.div
     variants={itemVariants}
-    className={`bg-white/5 border border-gray-800 rounded-2xl p-6 ${className}`}
+    className={`bg-white/5 border border-gray-800 rounded-xl md:rounded-2xl p-4 md:p-6 ${className}`}
   >
     {children}
   </motion.div>
@@ -360,7 +360,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="p-4 sm:p-6 lg:p-8 mt-20">
+      <div className="p-4 sm:p-6 lg:p-8 mt-16 md:mt-20">
         <motion.div
           className="max-w-7xl mx-auto"
           initial="hidden"
@@ -368,12 +368,12 @@ export default function Dashboard() {
           variants={containerVariants}
         >
           {/* Header */}
-          <motion.div variants={itemVariants} className="mb-8 flex items-start justify-between gap-4">
+          <motion.div variants={itemVariants} className="mb-6 md:mb-8 flex flex-col md:flex-row items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold">
+              <h1 className="text-xl md:text-4xl font-bold">
                 Welcome back, {userName}!
               </h1>
-              <p className="text-gray-400 mt-1">
+              <p className="text-xs md:text-base text-gray-400 mt-1">
                 {isNewUser
                   ? "Let's get started with your interview preparation journey."
                   : "Here's your progress overview."
@@ -386,8 +386,8 @@ export default function Dashboard() {
           {isNewUser && (
             <motion.div variants={itemVariants} className="mb-8">
               <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-2xl p-6">
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <AlertCircle className="text-blue-400" size={28} />
+              <h2 className="text-xl md:text-2xl font-bold mb-4 flex items-center gap-2">
+                  <AlertCircle className="text-blue-400" size={24} />
                   Getting Started with Pathwise
                 </h2>
                 <p className="text-gray-300 mb-6">
@@ -441,30 +441,37 @@ export default function Dashboard() {
           {/* Resume Score Card (if analyzed) */}
           {hasResume && resumeScore && (
             <motion.div variants={itemVariants} className="mb-8">
-              <DashboardCard className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <DashboardCard className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20 p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6">
                   <div>
-                    <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                      <FileText className="text-blue-400" size={24} />
+                    <h3 className="text-lg md:text-xl font-bold mb-1 flex items-center gap-2">
+                      <FileText className="text-blue-400 h-5 w-5 md:h-6 md:w-6" />
                       Resume Analysis Complete
                     </h3>
-                    <p className="text-gray-400">Your resume has been analyzed successfully.</p>
+                    <p className="text-xs md:text-base text-gray-400">Your resume has been analyzed successfully.</p>
                   </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <div className={`text-4xl font-bold ${resumeScore >= 80 ? 'text-green-400' :
-                        resumeScore >= 60 ? 'text-yellow-400' :
-                          'text-red-400'
-                        }`}>
-                        {resumeScore}
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                    <div className="relative h-16 md:h-24 w-16 md:w-24 shrink-0">
+                      <svg className="h-full w-full" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="16" fill="none" className="stroke-gray-800" strokeWidth="3" />
+                        <motion.circle
+                          cx="18" cy="18" r="16" fill="none" className="stroke-blue-500" strokeWidth="3"
+                          strokeDasharray="100"
+                          initial={{ strokeDashoffset: 100 }}
+                          animate={{ strokeDashoffset: 100 - resumeScore }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-base md:text-2xl font-bold">{resumeScore}</span>
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">Score</div>
                     </div>
                     <button
                       onClick={() => navigate('/personalized-roadmap')}
-                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-lg"
+                      className="w-full sm:w-auto px-5 py-2.5 md:px-6 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs md:text-sm transition-colors"
                     >
-                      View Detailed Roadmap
+                      View Roadmap
                     </button>
                   </div>
                 </div>
@@ -481,25 +488,25 @@ export default function Dashboard() {
                 <DashboardCard className="bg-gradient-to-br from-gray-900/50 to-gray-800/50">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
                     <div>
-                      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <TrendingUp className={`h-6 w-6 ${isImproving ? 'text-green-400' : 'text-red-400'}`} />
+                      <h2 className="text-lg md:text-xl font-bold mb-1 flex items-center gap-2">
+                        <TrendingUp className={`h-4 w-4 md:h-5 md:w-5 ${isImproving ? 'text-green-400' : 'text-red-400'}`} />
                         Performance Overview
                       </h2>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-xs text-gray-400">
                         Track your interview performance over time
                       </p>
                     </div>
                     {/* Trend Indicator */}
                     {performanceData.length >= 5 && (
-                      <div className="mt-4 sm:mt-0 flex items-center gap-4">
-                        <div className={`px-4 py-2 rounded-lg ${isImproving ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'}`}>
-                          <div className="text-xs text-gray-400 mb-1">Trend</div>
+                      <div className="mt-4 sm:mt-0 flex items-center gap-3">
+                        <div className={`px-3 py-1.5 rounded-lg text-xs ${isImproving ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'}`}>
+                          <div className="text-gray-400 mb-0.5">Trend</div>
                           <div className={`font-bold ${isImproving ? 'text-green-400' : 'text-red-400'}`}>
                             {isImproving ? '↑' : '↓'} {Math.abs(trendPercentage)}%
                           </div>
                         </div>
-                        <div className="px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30">
-                          <div className="text-xs text-gray-400 mb-1">Average</div>
+                        <div className="px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-xs">
+                          <div className="text-gray-400 mb-0.5">Average</div>
                           <div className="font-bold text-blue-400">{overallAverage}%</div>
                         </div>
                       </div>
@@ -508,36 +515,32 @@ export default function Dashboard() {
 
                   {/* Stats Cards */}
                   {performanceData.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3 mb-6">
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                        <div className="text-xs text-gray-400 mb-1">Best Score</div>
-                        <div className="text-xl font-bold text-green-400">{bestScore}%</div>
+                    <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6">
+                      <div className="bg-white/5 rounded-lg p-2 md:p-3 border border-white/10 text-center">
+                        <div className="text-[9px] md:text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider">Best</div>
+                        <div className="text-sm md:text-lg font-bold text-green-400">{bestScore}%</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                        <div className="text-xs text-gray-400 mb-1">Average</div>
-                        <div className="text-xl font-bold text-blue-400">{overallAverage}%</div>
+                      <div className="bg-white/5 rounded-lg p-2 md:p-3 border border-white/10 text-center">
+                        <div className="text-[9px] md:text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider">Avg</div>
+                        <div className="text-sm md:text-lg font-bold text-blue-400">{overallAverage}%</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                        <div className="text-xs text-gray-400 mb-1">Total Attempts</div>
-                        <div className="text-xl font-bold text-purple-400">{totalInterviews}</div>
+                      <div className="bg-white/5 rounded-lg p-2 md:p-3 border border-white/10 text-center">
+                        <div className="text-[9px] md:text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider">Total</div>
+                        <div className="text-sm md:text-lg font-bold text-purple-400">{totalInterviews}</div>
                       </div>
                     </div>
                   )}
 
-                  <div className="h-80 w-full">
+                  <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={performanceData}
-                        margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
+                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                       >
                         <defs>
                           <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
                             <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="colorAverage" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.5}/>
-                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.1}/>
                           </linearGradient>
                         </defs>
                         <CartesianGrid 
@@ -548,69 +551,37 @@ export default function Dashboard() {
                         <XAxis 
                           dataKey="attemptName" 
                           stroke="#4b5563"
-                          tick={{ fill: '#9ca3af', fontSize: 10 }}
+                          tick={{ fill: '#9ca3af', fontSize: 9 }}
                           axisLine={false}
                           tickLine={false}
                         />
                         <YAxis 
                           stroke="#9ca3af"
                           domain={[0, 100]}
-                          tick={{ fill: '#9ca3af', fontSize: 12 }}
-                          axisLine={{ stroke: '#4b5563' }}
-                          label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
+                          tick={{ fill: '#9ca3af', fontSize: 10 }}
+                          axisLine={false}
+                          tickLine={false}
                         />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "rgba(17, 24, 39, 0.95)",
                             border: "1px solid rgba(75, 85, 99, 0.5)",
                             borderRadius: "8px",
-                            backdropFilter: "blur(8px)",
-                            padding: "12px",
+                            padding: "8px",
+                            fontSize: "12px"
                           }}
-                          labelStyle={{ color: '#e5e7eb', marginBottom: '8px', fontWeight: 'bold' }}
-                          itemStyle={{ color: '#a78bfa', padding: '4px 0' }}
+                          labelStyle={{ color: '#e5e7eb', marginBottom: '4px', fontWeight: 'bold' }}
+                          itemStyle={{ color: '#a78bfa' }}
                           formatter={(value) => [`${value}%`, 'Accuracy']}
-                          labelFormatter={(label, payload) => {
-                            if (payload && payload[0]) {
-                              return payload[0].payload.fullDate || label;
-                            }
-                            return label;
-                          }}
-                          labelFormatter={(label, payload) => {
-                            if (payload && payload[0]) {
-                              return payload[0].payload.fullDate || label;
-                            }
-                            return label;
-                          }}
                         />
-                        {/* Average Reference Line */}
-                        <ReferenceLine 
-                          y={overallAverage} 
-                          stroke="#3b82f6" 
-                          strokeDasharray="5 5"
-                          strokeWidth={2}
-                          label={{ value: `Avg: ${overallAverage}%`, position: "right", fill: "#3b82f6", fontSize: 12 }}
-                        />
-                        {/* Area under the curve */}
                         <Area
                           type="monotone"
                           dataKey="score"
                           stroke="#3b82f6"
-                          strokeWidth={4}
-                          fill="url(#colorScore)"
-                          dot={{ r: 6, fill: "#3b82f6", strokeWidth: 2, stroke: "#000" }}
-                          activeDot={{ r: 8, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
-                          animationDuration={500}
-                        />
-                        {/* Average line */}
-                        <Line
-                          type="monotone"
-                          dataKey={() => overallAverage}
-                          stroke="#3b82f6"
                           strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={false}
-                          legendType="line"
+                          fill="url(#colorScore)"
+                          dot={{ r: 4, fill: "#3b82f6" }}
+                          activeDot={{ r: 6 }}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -621,14 +592,13 @@ export default function Dashboard() {
                     <div className="mt-6 pt-6 border-t border-gray-700">
                       <h3 className="text-sm font-semibold text-gray-400 mb-3">Performance Insights</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-gray-400">Improvement Rate</span>
-                            <span className={`text-sm font-bold ${isImproving ? 'text-green-400' : 'text-red-400'}`}>
+                            <span className="text-xs text-gray-400">Improvement Rate</span>
+                            <span className={`text-xs font-bold ${isImproving ? 'text-green-400' : 'text-red-400'}`}>
                               {isImproving ? '+' : ''}{trendPercentage}%
                             </span>
                           </div>
-                          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                             <div
                               className={`h-full ${isImproving ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-rose-500'}`}
                               style={{ width: `${Math.min(100, Math.abs(trendPercentage))}%` }}
@@ -677,7 +647,7 @@ export default function Dashboard() {
                     {recentInterviews.map((interview) => (
                       <li
                         key={interview.id}
-                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-default"
+                        className="flex items-center justify-between p-2 md:p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-default"
                       >
                         <div>
                           <p className="font-medium">{interview.type} Interview</p>

@@ -60,10 +60,10 @@ export default function Navbar() {
           {/* Logo & Subtitle */}
           <div className="flex flex-col justify-center items-start h-full shrink-0">
             <Link to="/" className="group cursor-pointer outline-none flex flex-col gap-0.5">
-              <span className="text-teal-400 font-black leading-none tracking-tighter" style={{ fontSize: '1.75rem', fontFamily: "'Outfit', sans-serif" }}>
+              <span className="text-teal-400 font-black leading-none tracking-tighter text-2xl md:text-[1.75rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 Pathwise
               </span>
-              <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none" style={{ fontSize: '0.55rem', fontFamily: "'Outfit', sans-serif" }}>
+              <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none text-[0.45rem] md:text-[0.55rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 AI CAREER FORGE
               </span>
             </Link>
@@ -209,7 +209,7 @@ export default function Navbar() {
                     }`}
                   aria-label={link.name}
                 >
-                  {React.cloneElement(link.icon, { size: 22 })}
+                  {React.cloneElement(link.icon, { size: 20 })}
                 </Link>
               );
             })}
@@ -225,7 +225,7 @@ export default function Navbar() {
   transition-all duration-300 ml-2`}
               aria-label="Toggle menu"
             >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
           </div>

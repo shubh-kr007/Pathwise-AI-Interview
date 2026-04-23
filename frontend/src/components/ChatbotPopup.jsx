@@ -145,12 +145,12 @@ export default function ChatbotPopup() {
       {/* Chat Window */}
       <AnimatePresence>
         {open && (
-          <motion.div
+            <motion.div
             initial={{ opacity: 0, scale: 0.7, y: 50, originX: 1, originY: 1 }}
             animate={{ opacity: 1, scale: 1, y: 0, originX: 1, originY: 1 }}
             exit={{ opacity: 0, scale: 0.7, y: 50, originX: 1, originY: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="absolute bottom-0 right-0 w-[350px] h-[500px] rounded-3xl shadow-2xl overflow-hidden flex flex-col
+            className="absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[350px] h-[500px] max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col
                        bg-blue-900/10 backdrop-blur-3xl border border-white/10 ring-1 ring-white/5 origin-bottom-right"
           >
             {/* Header */}

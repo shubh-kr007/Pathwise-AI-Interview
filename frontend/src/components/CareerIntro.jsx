@@ -31,33 +31,33 @@ export default function CareerIntro() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-8xl font-black leading-[0.9] tracking-tighter text-white">
+              <h1 className="text-3xl md:text-8xl font-black leading-[0.9] tracking-tighter text-white">
                 Master Your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-500">
                   Career Forge
                 </span>
               </h1>
-              <p className="text-xl text-slate-400 max-w-xl leading-relaxed font-medium">
+              <p className="text-base md:text-xl text-slate-400 max-w-xl leading-relaxed font-medium">
                 Succeed with AI-driven mock interviews, precision resume intelligence, and custom-tailored professional paths.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-5">
+            <div className="flex flex-wrap gap-4">
               <Link to="/interview">
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-10 py-5 rounded-2xl bg-white text-black font-bold shadow-[0_20px_50px_rgba(255,255,255,0.1)] flex items-center gap-3 transition-shadow hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
+                  className="px-6 py-3.5 md:px-10 md:py-5 rounded-xl md:rounded-2xl bg-white text-black font-bold shadow-[0_20px_50px_rgba(255,255,255,0.1)] flex items-center gap-3 transition-shadow hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] text-sm md:text-base"
                 >
                   Start Assessment
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                 </motion.button>
               </Link>
               <Link to="/resume-analyzer">
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-10 py-5 rounded-2xl bg-teal-950/30 border border-teal-800 text-teal-100 font-bold backdrop-blur-xl hover:bg-teal-900/50 transition-all shadow-xl"
+                  className="px-6 py-3.5 md:px-10 md:py-5 rounded-xl md:rounded-2xl bg-teal-950/30 border border-teal-800 text-teal-100 font-bold backdrop-blur-xl hover:bg-teal-900/50 transition-all shadow-xl text-sm md:text-base"
                 >
                   Analyze Resume
                 </motion.button>

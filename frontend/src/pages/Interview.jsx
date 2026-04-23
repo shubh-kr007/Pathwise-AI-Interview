@@ -107,21 +107,21 @@ export default function Interview() {
              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-blue-400 uppercase tracking-widest">
                <BrainCircuit size={14} /> AI-Powered Proctoring
              </div>
-             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
+             <h1 className="text-2xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
                Select Your <br />
                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Battleground</span>
              </h1>
-             <p className="text-gray-500 text-lg">Choose a specialization and challenge level to begin your technical assessment.</p>
+             <p className="text-gray-500 text-sm md:text-lg">Choose a specialization and challenge level to begin your technical assessment.</p>
            </div>
            
-           <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-[24px] bg-white/5 border border-white/10 text-center min-w-[160px]">
-                <p className="text-3xl font-bold text-blue-400">{userStats.interviewsCompleted}</p>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Tests Taken</p>
+           <div className="grid grid-cols-2 gap-3 md:gap-4 w-full md:w-auto">
+              <div className="p-3 md:p-6 rounded-2xl md:rounded-[24px] bg-white/5 border border-white/10 text-center min-w-0 md:min-w-[160px]">
+                <p className="text-xl md:text-3xl font-bold text-blue-400">{userStats.interviewsCompleted}</p>
+                <p className="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Tests Taken</p>
               </div>
-              <div className="p-6 rounded-[24px] bg-white/5 border border-white/10 text-center min-w-[160px]">
-                <p className="text-3xl font-bold text-purple-400">{userStats.averageScore}%</p>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Avg. Score</p>
+              <div className="p-3 md:p-6 rounded-2xl md:rounded-[24px] bg-white/5 border border-white/10 text-center min-w-0 md:min-w-[160px]">
+                <p className="text-xl md:text-3xl font-bold text-purple-400">{userStats.averageScore}%</p>
+                <p className="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Avg. Score</p>
               </div>
            </div>
         </header>
@@ -142,15 +142,15 @@ export default function Interview() {
                   className="group relative cursor-pointer"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${tech.gradient} rounded-[32px] opacity-0 group-hover:opacity-100 transition-duration-500`} />
-                  <div className="relative h-full bg-[#111] border border-white/5 rounded-[32px] p-8 flex flex-col hover:bg-black/50 transition-all hover:scale-[1.02]">
-                    <div className="mb-6 p-4 rounded-2xl bg-white/5 w-fit group-hover:scale-110 transition-transform">
-                      {tech.icon}
+                  <div className="relative h-full bg-[#111] border border-white/5 rounded-[24px] md:rounded-[32px] p-5 md:p-8 flex flex-col hover:bg-black/50 transition-all hover:scale-[1.02]">
+                    <div className="mb-4 md:mb-6 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 w-fit group-hover:scale-110 transition-transform">
+                      {React.cloneElement(tech.icon, { className: "h-6 w-6 md:h-8 md:w-8" })}
                     </div>
-                    <h3 className="text-2xl font-bold mb-1 uppercase tracking-tight">{tech.title}</h3>
-                    <p className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">{tech.subtitle}</p>
-                    <p className="text-gray-500 text-sm mb-8 flex-grow">{tech.description}</p>
-                    <button className="flex items-center gap-2 text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
-                      Enter Assessment <ChevronRight size={18} />
+                    <h3 className="text-lg md:text-2xl font-bold mb-1 uppercase tracking-tight">{tech.title}</h3>
+                    <p className="text-blue-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-3 md:mb-4">{tech.subtitle}</p>
+                    <p className="text-gray-500 text-xs md:text-sm mb-6 md:mb-8 flex-grow">{tech.description}</p>
+                    <button className="flex items-center gap-2 text-xs md:text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                      Enter Assessment <ChevronRight size={16} className="md:size-[18px]" />
                     </button>
                   </div>
                 </div>
@@ -176,22 +176,22 @@ export default function Interview() {
                   <div
                     key={level.id}
                     onClick={() => handleStart(level.id)}
-                    className="group cursor-pointer relative bg-white/5 border border-white/10 rounded-[32px] p-10 hover:border-blue-500 transition-all hover:bg-blue-500/5 hover:-translate-y-2"
+                    className="group cursor-pointer relative bg-white/5 border border-white/10 rounded-[24px] md:rounded-[32px] p-6 md:p-10 hover:border-blue-500 transition-all hover:bg-blue-500/5 hover:-translate-y-2"
                   >
-                    <div className={`w-12 h-12 rounded-2xl ${level.bg} flex items-center justify-center mb-6`}>
-                       <Gamepad2 className={level.color} size={24} />
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${level.bg} flex items-center justify-center mb-4 md:mb-6`}>
+                       <Gamepad2 className={level.color} size={20} />
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">{level.label}</h3>
-                    <div className={`text-xs font-bold uppercase tracking-widest ${level.color} mb-6`}>
+                    <h3 className="text-xl md:text-2xl font-bold mb-2">{level.label}</h3>
+                    <div className={`text-[10px] md:text-xs font-bold uppercase tracking-widest ${level.color} mb-4 md:mb-6`}>
                       {level.level} · {level.duration}
                     </div>
-                    <p className="text-gray-500 text-sm mb-8">
+                    <p className="text-gray-500 text-xs md:text-sm mb-6 md:mb-8">
                        {level.id === 'easy' && "Foundational questions for entry-level roles."}
                        {level.id === 'medium' && "Industry standard challenges for experienced pros."}
                        {level.id === 'hard' && "Elite-tier problems for top competitive edge."}
                     </p>
-                    <div className="flex items-center gap-2 text-sm font-bold text-white group-hover:text-blue-400">
-                      Begin Mission <ArrowRight size={18} />
+                    <div className="flex items-center gap-2 text-xs md:text-sm font-bold text-white group-hover:text-blue-400">
+                      Begin Mission <ArrowRight size={16} />
                     </div>
                   </div>
                 ))}

@@ -36,12 +36,12 @@ export default function CareerLanding() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-center mb-24 max-w-3xl"
+          className="relative z-10 text-center mb-12 md:mb-24 max-w-3xl"
         >
-          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-6">
+          <h2 className="text-2xl md:text-6xl font-extrabold tracking-tighter mb-4 md:mb-6">
             Elite <span className="text-teal-400">Toolkit</span> for Top Candidates
           </h2>
-          <p className="text-slate-400 text-lg font-medium leading-relaxed">
+          <p className="text-slate-400 text-sm md:text-lg font-medium leading-relaxed px-4 md:px-0">
             Every tool you need to outperform the competition, built with cutting-edge AI and advanced career logic.
           </p>
         </motion.div>
@@ -84,7 +84,7 @@ const Card = ({ feature, navigate }) => {
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       whileHover={{ y: -10 }}
-      className="relative group bg-slate-950/40 backdrop-blur-2xl border border-slate-900 rounded-[2.5rem] p-10 cursor-pointer overflow-hidden transition-all duration-500 hover:border-teal-500/50 hover:shadow-[0_20px_80px_-20px_rgba(20,184,166,0.2)]"
+      className="relative group bg-slate-950/40 backdrop-blur-2xl border border-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 cursor-pointer overflow-hidden transition-all duration-500 hover:border-teal-500/50 hover:shadow-[0_20px_80px_-20px_rgba(20,184,166,0.2)]"
     >
       {/* Internal Glow Effect */}
       <div className={`absolute inset-0 bg-gradient-to-br from-teal-600/5 to-blue-600/5 opacity-0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
@@ -94,11 +94,11 @@ const Card = ({ feature, navigate }) => {
           <feature.Icon className="w-7 h-7" strokeWidth={1.5} />
         </div>
         
-        <div className="space-y-4">
-          <h3 className="text-3xl font-bold text-white tracking-tighter leading-none group-hover:text-teal-400 transition-colors">
+        <div className="space-y-3">
+          <h3 className="text-xl md:text-3xl font-bold text-white tracking-tighter leading-none group-hover:text-teal-400 transition-colors">
             {feature.title}
           </h3>
-          <p className="text-slate-400 leading-relaxed text-lg font-medium group-hover:text-slate-200 transition-colors">
+          <p className="text-slate-400 leading-relaxed text-sm md:text-lg font-medium group-hover:text-slate-200 transition-colors">
             {feature.description}
           </p>
         </div>
@@ -129,7 +129,7 @@ const HowItWorksSection = () => {
         <div className="inline-block px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-teal-400 text-xs font-black uppercase tracking-widest mb-8">
           The Process
         </div>
-        <h2 className="text-5xl md:text-7xl font-black mb-12 tracking-tighter text-white">
+        <h2 className="text-3xl md:text-7xl font-black mb-8 md:mb-12 tracking-tighter text-white px-4 md:px-0">
           A Smarter Way to <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500">Accelerate</span>
         </h2>
 
@@ -170,15 +170,15 @@ const CTASection = ({ navigate }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         className="relative max-w-6xl mx-auto overflow-hidden rounded-[4rem] bg-gradient-to-br from-teal-600 to-blue-900 p-1 md:p-2 shadow-[0_50px_100px_-20px_rgba(20,184,166,0.3)]"
       >
-        <div className="bg-[#020617] rounded-[3.8rem] p-16 md:p-32 relative overflow-hidden">
+        <div className="bg-[#020617] rounded-[2rem] md:rounded-[3.8rem] p-8 md:p-32 relative overflow-hidden">
           {/* Animated Background Light */}
           <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-teal-500/20 rounded-full blur-[100px] animate-pulse" />
           
           <div className="relative z-10 flex flex-col items-center text-center">
-             <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-10">
+             <h2 className="text-3xl md:text-8xl font-black text-white tracking-tighter mb-8 md:mb-10">
                Ready to <span className="text-teal-400 underline decoration-teal-500/30">Dominate</span> <br className="hidden md:block" /> Your Career?
              </h2>
-             <p className="text-xl text-slate-400 max-w-2xl mb-16 leading-relaxed font-medium">
+             <p className="text-base md:text-xl text-slate-400 max-w-2xl mb-10 md:mb-16 leading-relaxed font-medium">
                Join 50,000+ candidates who have leveled up their careers with Pathwise precision.
              </p>
              
@@ -186,11 +186,11 @@ const CTASection = ({ navigate }) => {
                onClick={() => navigate('/interview')}
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
-               className="group relative px-12 py-6 bg-white text-black rounded-3xl font-black text-xl flex items-center gap-4 hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] transition-shadow"
+               className="group relative px-6 py-4 md:px-12 md:py-6 bg-white text-black rounded-2xl md:rounded-3xl font-black text-base md:text-xl flex items-center gap-4 hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] transition-shadow"
              >
                Start Free Session
-               <div className="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white group-hover:translate-x-2 transition-transform">
-                 <ArrowRight size={20} />
+               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-teal-600 flex items-center justify-center text-white group-hover:translate-x-2 transition-transform">
+                 <ArrowRight size={16} className="md:size-[20px]" />
                </div>
              </motion.button>
           </div>

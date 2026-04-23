@@ -84,10 +84,10 @@ export default function About() {
         transition={{ duration: 0.8 }}
         className="max-w-4xl w-full text-center mb-16"
       >
-        <h1 className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+        <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
           About Pathwise
         </h1>
-        <p className="text-lg text-gray-300 mb-4">
+        <p className="text-base md:text-lg text-gray-300 mb-4">
           Hi {userName}! Our mission is to empower everyone to ace their interviews with confidence. We blend cutting-edge AI, expert content, and a supportive community to help you land your dream job.
         </p>
         <motion.div
@@ -109,7 +109,7 @@ export default function About() {
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="text-3xl font-bold mb-10 text-blue-300">Our Journey</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-10 text-blue-300">Our Journey</h2>
         <ol className="relative border-l border-blue-500">
           <li className="mb-10 ml-6">
             <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-700 rounded-full -left-4 ring-4 ring-blue-300">
@@ -153,8 +153,8 @@ export default function About() {
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
-        <h2 className="text-3xl font-bold mb-10 text-green-300 text-center">How Pathwise Helps You</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+        <h2 className="text-2xl md:text-3xl font-bold mb-8 md:mb-10 text-green-300 text-center">How Pathwise Helps You</h2>
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
           {helpSteps.map((step, i) => (
             <motion.div
               key={i}
@@ -162,13 +162,13 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="bg-white/10 rounded-xl p-6 text-center shadow-lg hover:scale-105 transition-transform"
+              className="bg-white/10 rounded-xl p-4 md:p-6 text-center shadow-lg hover:scale-105 transition-transform"
             >
-              <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl`}>
+              <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl md:text-2xl`}>
                 {step.number}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">{step.title}</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{step.description}</p>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">{step.title}</h3>
+              <p className="text-gray-300 text-xs md:text-sm leading-relaxed">{step.description}</p>
             </motion.div>
           ))}
         </div>
@@ -234,19 +234,19 @@ export default function About() {
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="text-3xl font-bold mb-10 text-purple-300 text-center">Meet the Team</h2>
-        <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
+        <h2 className="text-2xl md:text-3xl font-bold mb-8 md:mb-10 text-purple-300 text-center">Meet the Team</h2>
+        <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {team.map((member, i) => (
             <motion.div
               key={member.name}
-              className="bg-white/10 border border-gray-700 rounded-2xl p-6 text-center shadow-lg hover:scale-105 transition-transform"
+              className="bg-white/10 border border-gray-700 rounded-2xl p-5 md:p-6 text-center shadow-lg hover:scale-105 transition-transform"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: i * 0.2, type: "spring" }}
             >
-              <h4 className="text-xl font-bold mb-1 text-white">{member.name}</h4>
-              <p className="text-purple-300 font-semibold mb-2">{member.role}</p>
-              <p className="text-gray-300 text-sm">{member.bio}</p>
+              <h4 className="text-lg md:text-xl font-bold mb-1 text-white">{member.name}</h4>
+              <p className="text-purple-300 font-semibold mb-2 text-sm md:text-base">{member.role}</p>
+              <p className="text-gray-300 text-xs md:text-sm">{member.bio}</p>
             </motion.div>
           ))}
         </div>

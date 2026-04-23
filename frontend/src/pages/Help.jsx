@@ -106,7 +106,7 @@ const Help = () => {
       <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-4xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
             How can we help you?
           </h1>
           <div className="relative max-w-xl mx-auto">
@@ -122,10 +122,10 @@ const Help = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 justify-center mb-8">
+        <div className="flex gap-3 md:gap-4 justify-center mb-8">
           <button
             onClick={() => setActiveSection('faq')}
-            className={`px-5 py-2 rounded-full font-medium transition-colors duration-300 ${
+            className={`px-4 py-2 md:px-5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-colors duration-300 ${
               activeSection === 'faq'
                 ? 'bg-blue-600 shadow-lg shadow-blue-500/30 text-white'
                 : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
@@ -135,7 +135,7 @@ const Help = () => {
           </button>
           <button
             onClick={() => setActiveSection('guides')}
-            className={`px-5 py-2 rounded-full font-medium transition-colors duration-300 ${
+            className={`px-4 py-2 md:px-5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-colors duration-300 ${
               activeSection === 'guides'
                 ? 'bg-blue-600 shadow-lg shadow-blue-500/30 text-white'
                 : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
@@ -154,14 +154,14 @@ const Help = () => {
                 className="bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700 transition-all hover:border-blue-500"
               >
                 <button
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-800/80 transition-colors"
+                  className="w-full px-4 py-3 md:px-6 md:py-4 text-left flex items-center justify-between hover:bg-gray-800/80 transition-colors"
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                 >
-                  <span className="font-semibold text-lg">{faq.question}</span>
+                  <span className="font-semibold text-sm md:text-lg">{faq.question}</span>
                   {expandedFaq === index ? (
-                    <ChevronUp size={20} className="text-blue-400" />
+                    <ChevronUp size={18} md:size={20} className="text-blue-400" />
                   ) : (
-                    <ChevronDown size={20} className="text-gray-400" />
+                    <ChevronDown size={18} md:size={20} className="text-gray-400" />
                   )}
                 </button>
                 <div
@@ -189,8 +189,8 @@ const Help = () => {
                     {guide.icon}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">{guide.title}</h3>
-                    <p className="text-gray-400 text-sm">{guide.description}</p>
+                    <h3 className="font-semibold text-sm md:text-lg mb-1 md:mb-2">{guide.title}</h3>
+                    <p className="text-gray-400 text-xs md:text-sm">{guide.description}</p>
                   </div>
                 </div>
               </div>
@@ -203,9 +203,9 @@ const Help = () => {
           <h2 className="text-2xl font-semibold mb-4">Still need help?</h2>
           <button
             onClick={() => setIsSupportOpen(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-full font-medium transition-all shadow-lg shadow-blue-500/30"
+            className="inline-flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-full text-sm md:text-base font-medium transition-all shadow-lg shadow-blue-500/30"
           >
-            <HelpCircle size={20} />
+            <HelpCircle size={18} md:size={20} />
             Contact Support
           </button>
         </div>
