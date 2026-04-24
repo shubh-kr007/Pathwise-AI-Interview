@@ -49,10 +49,10 @@ export default function AuthPage() {
       localStorage.setItem("justLoggedIn", "true");
       setShowLoadingOverlay(true);
       
-      // Artificial delay to show the beautiful loading screen
+      // Reduced delay to 1000ms to improve responsiveness
       setTimeout(() => {
         navigate("/");
-      }, 2500);
+      }, 1000);
     } catch (err) {
       console.error("Auth error:", err);
       setMessage("❌ Server error. Please try again later.");
@@ -63,6 +63,9 @@ export default function AuthPage() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     const idToken = credentialResponse.credential;
+    setIsLoading(true);
+    setShowLoadingOverlay(true); // Show overlay immediately for better feedback
+    
     try {
       const res = await fetch(`${API_BASE}/api/google-login`, {
         method: "POST",
@@ -74,15 +77,20 @@ export default function AuthPage() {
       if (res.ok && data.token) {
         login(data.token, data.user);
         localStorage.setItem("justLoggedIn", "true");
-        setShowLoadingOverlay(true);
+        
+        // Reduced delay from 2500ms to 1000ms
         setTimeout(() => {
           navigate("/");
-        }, 2500);
+        }, 1000);
       } else {
+        setShowLoadingOverlay(false);
+        setIsLoading(false);
         setMessage(data.message || "❌ Google login failed");
       }
     } catch (err) {
       console.error("Google login error:", err);
+      setShowLoadingOverlay(false);
+      setIsLoading(false);
       setMessage("❌ Google login failed");
     }
   };
