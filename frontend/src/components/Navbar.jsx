@@ -64,7 +64,7 @@ export default function Navbar() {
                 Pathwise
               </span>
               <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none text-[0.45rem] md:text-[0.55rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                AI CAREER FORGE
+                AI JOB PORTAL
               </span>
             </Link>
           </div>

@@ -34,7 +34,7 @@ export default function CareerIntro() {
               <h1 className="text-3xl md:text-8xl font-black leading-[0.9] tracking-tighter text-white">
                 Master Your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-500">
-                  Career Forge
+                  Job Portal
                 </span>
               </h1>
               <p className="text-base md:text-xl text-slate-400 max-w-xl leading-relaxed font-medium">
