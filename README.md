@@ -1,7 +1,7 @@
 # 🧭 PathWise AI
 
 <p align="center">
-  <a href="https://pathwise-ai-interview-frontend.onrender.com"><strong>🚀 LIVE DEMO</strong></a>
+  <a href="https://pathwise-ai-interview-frontend.onrender.com"><strong>LIVE DEMO</strong></a>
 </p>
 
 <p align="center">
