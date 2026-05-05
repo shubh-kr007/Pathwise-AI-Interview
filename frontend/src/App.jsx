@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
-// 🧭 Layout Components
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -11,7 +11,7 @@ import ChatbotPopup from "./components/ChatbotPopup";
 import { ToastProvider } from "./components/ToastProvider";
 import { PageFallback } from "./components/Skeleton";
 
-// 📝 Page Components (lazy)
+
 const HomePage = lazy(() => import("./pages/HomePage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Interview = lazy(() => import("./pages/Interview"));
@@ -23,7 +23,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Help = lazy(() => import("./pages/Help"));
 const PersonalizedRoadmap = lazy(() => import("./pages/PersonalizedRoadmap")); 
-// ✅ Add Resume Analyzer
+
 const ResumeAnalyzer = lazy(() => import("./pages/ResumeAnalyzer"));
 
 function AppLayout() {

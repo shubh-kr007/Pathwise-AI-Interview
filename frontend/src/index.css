@@ -2,18 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+@layer base {
+  html,
+  body {
     @apply bg-bg-primary text-white;
-}
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
 
-html, body {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-}
+  button,
+  a,
+  [role="button"],
+  .cursor-pointer {
+    cursor: pointer;
+  }
 
-button, 
-a,
-[role="button"],
-.cursor-pointer {
-  cursor: pointer !important;
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
 }
