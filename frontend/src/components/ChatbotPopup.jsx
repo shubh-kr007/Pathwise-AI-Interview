@@ -62,7 +62,7 @@ export default function ChatbotPopup() {
       pushMessage({ sender: "bot", text: `${greeting}, ${user.name || "there"}! 👋 I'm InterviewBot — ask me about interviews, resumes, or Pathwise features!` });
       setOpen(true);
 
-      // Auto-close after 3 seconds as requested
+      
       setTimeout(() => {
         setOpen(false);
       }, 3000);

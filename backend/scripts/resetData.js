@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
 
-// Load env from one level up
+
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 async function resetAllData() {
