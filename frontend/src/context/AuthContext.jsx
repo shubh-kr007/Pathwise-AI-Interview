@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const inactivityTimerRef = useRef(null);
-  const INACTIVITY_LIMIT = 60 * 60 * 1000; // 1 hour in ms
+  const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in ms
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
