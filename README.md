@@ -126,9 +126,9 @@ npm run dev
 ## 👨‍💻 Developed By
 
 **Team PATHWISE**
-- **Shubh Kumar** - [GitHub](https://github.com/shubh-kr007)
-- **Mohd. Saqib** - [GitHub](https://github.com/MohdSaqib)
-- **Rishabh Srivastava** - [GitHub](https://github.com/Rishabh-Srivastava)
+- **Shubh Kumar** - [GitHub](https://github.com/shubh-kr007/)
+- **Mohd. Saqib** - [GitHub](https://github.com/saqib7903)
+- **Rishabh Srivastava** - [GitHub](https://github.com/risshhubh)
 
 ---
 

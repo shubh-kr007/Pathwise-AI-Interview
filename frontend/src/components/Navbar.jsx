@@ -59,13 +59,16 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* Logo & Subtitle */}
           <div className="flex flex-col justify-center items-start h-full shrink-0">
-            <Link to="/" className="group cursor-pointer outline-none flex flex-col gap-0.5">
-              <span className="text-teal-400 font-black leading-none tracking-tighter text-2xl md:text-[1.75rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                Pathwise
-              </span>
-              <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none text-[0.45rem] md:text-[0.55rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                AI JOB PORTAL
-              </span>
+            <Link to="/" className="group cursor-pointer outline-none flex items-center gap-3">
+              <img src="/logo.svg" alt="PathWise Logo" className="w-10 h-10 transition-transform duration-300 group-hover:rotate-12" />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-teal-400 font-black leading-none tracking-tighter text-2xl md:text-[1.75rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                  Pathwise
+                </span>
+                <span className="text-white/40 uppercase font-black tracking-[0.4em] leading-none text-[0.45rem] md:text-[0.55rem]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                  AI JOB PORTAL
+                </span>
+              </div>
             </Link>
           </div>
 

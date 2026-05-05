@@ -155,6 +155,10 @@ export default function AuthLayout({
               </div>
 
               <div className="mb-6 md:mb-8 text-center lg:text-left">
+                <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
+                  <img src="/logo.svg" alt="Logo" className="w-8 h-8" />
+                  <span className="text-teal-400 font-black text-xl tracking-tighter font-['Outfit']">Pathwise</span>
+                </div>
                 <h3 className="text-xl md:text-2xl font-black tracking-tight mb-1">
                   {isLogin ? "Sign in" : "Get Started"}
                 </h3>
