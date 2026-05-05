@@ -1,13 +1,17 @@
 # 🧭 PathWise AI
 
 <p align="center">
+  <a href="https://pathwise-ai-interview-frontend.onrender.com"><strong>🚀 LIVE DEMO</strong></a>
+</p>
+
+<p align="center">
   <img src="frontend/public/pathwise-mockup.png" alt="PathWise AI Showcase" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://pathwise-ai-interview-frontend.onrender.com"><strong>Live Demo</strong></a> | 
   <a href="#-key-features"><strong>Features</strong></a> | 
   <a href="#-tech-stack"><strong>Tech Stack</strong></a> | 
+  <a href="#-folder-structure"><strong>Folder Structure</strong></a> | 
   <a href="#-installation--setup"><strong>Installation</strong></a>
 </p>
 
@@ -25,8 +29,6 @@
 
 **PathWise** is an intelligent career development platform designed to help students and professionals crack their dream jobs. It combines **AI Resume Analysis**, **Mock Interviews**, and **Personalized Roadmaps** into a single, cohesive experience.
 
-Unlike generic platforms, PathWise offers real-time, specific feedback using GPT models to analyze your resume and interview performance instantly.
-
 ---
 
 ## 🌟 Key Features
@@ -34,7 +36,7 @@ Unlike generic platforms, PathWise offers real-time, specific feedback using GPT
 ### 📄 AI Resume Analyzer
 *   **ATS Scoring:** Upload your resume (PDF/DOCX) and get an instant **ATS Score** (0-100).
 *   **Deep Insights:** Receive detailed feedback on **Strengths, Weaknesses, and Missing Keywords**.
-*   **Context Aware:** Automatically detects your job role (e.g., Frontend Dev, Data Scientist) to tailor your experience.
+*   **Context Aware:** Automatically detects your job role to tailor your experience.
 
 ### 🤖 AI Mock Interviews
 *   **Dynamic Questions:** Questions generated in real-time based on the selected topic and mode.
@@ -43,7 +45,7 @@ Unlike generic platforms, PathWise offers real-time, specific feedback using GPT
     *   💻 **Coding:** Write and submit code snippets.
     *   📝 **Quiz:** Open-ended conceptual questions.
 *   **10+ Domains:** Technical, Behavioral, System Design, Data Science, and more.
-*   **Instant Feedback:** Detailed AI analysis of your answers, including "What went well" and "Areas for improvement."
+*   **Instant Feedback:** Detailed AI analysis of your answers.
 
 ### 🗺️ Personalized Roadmaps
 *   **Custom Paths:** Generates a custom learning path based on your **Resume Analysis**.
@@ -53,9 +55,6 @@ Unlike generic platforms, PathWise offers real-time, specific feedback using GPT
 *   **Progress Tracking:** Visual charts using **Recharts** to show score improvement over time.
 *   **Session Isolation:** Secure, user-specific data management.
 *   **Interview History:** Review past attempts and scores.
-
-### 💬 AI Assistant
-*   Built-in Chatbot to answer career queries, provide quick tips, and guide you through the app.
 
 ---
 
@@ -69,6 +68,32 @@ Unlike generic platforms, PathWise offers real-time, specific feedback using GPT
 | **AI Engine** | OpenAI API (GPT-4 / GPT-3.5) |
 | **Auth** | JWT, Google OAuth 2.0 |
 | **Deployment** | Render / Vercel |
+
+---
+
+## 📂 Folder Structure
+
+```bash
+PathWise/
+├── frontend/               # React (Vite) Application
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # AuthContext & Global State
+│   │   ├── pages/          # Main Pages
+│   │   ├── utils/          # API Service, Session Manager
+│   │   └── main.jsx
+│   ├── index.html
+│   └── vite.config.js
+│
+├── backend/                # Node.js Express API
+│   ├── config/             # DB Connection
+│   ├── middleware/         # Auth & File Handling
+│   ├── models/             # Mongoose Schemas
+│   ├── routes/             # API Routes
+│   └── server.js           # Entry point
+│
+└── README.md
+```
 
 ---
 
@@ -87,7 +112,6 @@ npm install
 # Create a .env file with your credentials
 npm run dev
 ```
-*Required Env Vars: `PORT`, `MONGO_URI`, `JWT_SECRET`, `OPENAI_API_KEY`*
 
 ### 3️⃣ Frontend Setup
 ```bash
@@ -96,7 +120,6 @@ npm install
 # Create a .env file with your API URL
 npm run dev
 ```
-*Required Env Vars: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`*
 
 ---
 
